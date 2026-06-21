@@ -29,10 +29,14 @@ let debounceTimer = null;
 let searchVersion = 0;
 // AbortController para cancelar peticiones API en vuelo
 let abortController = null;
+let tipsInicializado = false;
 
 // ─── INICIALIZACIÓN ────
 
-document.addEventListener("DOMContentLoaded", async () => {
+async function inicializarTips() {
+  if (tipsInicializado) return;
+  tipsInicializado = true;
+
   // Cargar todos los tips en memoria (sin mostrarlos en el sidebar)
   await cargarTips();
 
@@ -56,7 +60,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.addEventListener("activarEliminacion", (e) => {
     manejarEliminacion(e.detail.id, e.detail.nombre);
   });
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", inicializarTips, { once: true });
+} else {
+  inicializarTips();
+}
 
 /**
  * Limpia el campo de búsqueda, el sidebar y recarga los datos en memoria

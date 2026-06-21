@@ -82,9 +82,14 @@ Responsabilidades principales:
 
 ### 4.3 `js/script.js` (orquestador Tips)
 
+Correccion de inicializacion relevante:
+
+- El modulo ahora inicializa tanto si se carga antes como despues de `DOMContentLoaded`
+- Evita perdida de eventos/UI cuando `script.js` se importa de forma diferida desde `js/app.js`
+
 Responsabilidades principales:
 
-- Inicializar app en `DOMContentLoaded`
+- Inicializar app cuando el modulo esta disponible (antes o despues de `DOMContentLoaded`)
 - Cargar cache local con `cargarTips()`
 - Gestionar busqueda con:
   - filtro local inmediato
@@ -244,3 +249,4 @@ Checklist minimo por cambio:
 - 2026-06-21: Ajuste de contraste matrix Home Fase 1: se redujo opacidad del overlay y se incremento brillo/estela de caracteres para mejorar visibilidad del efecto sin perder uniformidad.
 - 2026-06-21: Correccion de carga Home Fase 1: el modulo Tips se paso a importacion diferida en `js/app.js` para evitar bloquear la inicializacion del fondo matrix cuando exista un error en el modulo de Tips.
 - 2026-06-21: Simplificacion visual Home Fase 1: se removio fondo matrix/silueta y se adopto fondo oscuro minimalista para mayor estabilidad visual y tecnica.
+- 2026-06-21: Correccion funcional Tips Fase 1: `js/script.js` ahora soporta inicializacion post `DOMContentLoaded` para que busqueda y CRUD funcionen correctamente al entrar desde Home con importacion diferida.
