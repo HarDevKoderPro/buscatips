@@ -157,8 +157,7 @@ BuscaTips/
 │   ├── tips.php                # 📡 API REST - Endpoints CRUD para tips
 │   └── test_conexion.php       # 🧪 Script para verificar conexión a la base de datos
 ├── css/
-│   ├── style.css               # 🎨 Estilos principales (tema oscuro, responsivo)
-│   └── fonts.css               # 🔤 Definición de fuentes personalizadas
+│   └── style.css               # 🎨 Estilos principales (tema oscuro, responsivo)
 ├── fonts/
 │   └── openSans.ttf            # 🔤 Fuente Open Sans embebida
 ├── images/
@@ -167,8 +166,6 @@ BuscaTips/
 │   ├── libreria.js             # 📚 Módulo principal - API calls, cache, búsqueda, renderizado
 │   └── script.js               # 🎮 Orquestador de UI - Eventos, DOM, flujo de la app
 ├── index.html                  # 🏠 Página principal (SPA)
-├── test_api.html               # 🧪 Página de pruebas de la API REST
-├── tips.json                   # 📦 Archivo legacy (migrado a MySQL)
 └── README.md                   # 📖 Este archivo
 ```
 
@@ -518,11 +515,6 @@ GitHub Actions se encargará de sincronizar los archivos al servidor automática
 
 ### Vista Mobile
 > Interfaz optimizada para consulta en dispositivos móviles.
-
-### Página de Test de API
-> Herramienta integrada para probar todos los endpoints de la API REST.
-
----
 
 ## 🤝 Contribución
 
