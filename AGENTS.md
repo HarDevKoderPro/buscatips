@@ -26,6 +26,7 @@ Estructura detectada actualmente:
 ```text
 BuscaTips/
 |- .github/workflows/deploy.yml
+|- AGENTS.md
 |- api/config.php
 |- api/tips.php
 |- api/test_conexion.php
@@ -33,37 +34,53 @@ BuscaTips/
 |- fonts/openSans.ttf
 |- images/code.ico
 |- index.html
+|- js/app.js
 |- js/libreria.js
 |- js/script.js
 |- README.md
 ```
 
-Nota: el `README.md` menciona archivos que no aparecen en este snapshot (`css/fonts.css`, `test_api.html`, `tips.json`). Si se agregan o se eliminan oficialmente, actualizar `README.md` y este `AGENTS.md` para mantener consistencia.
+Nota de transicion: el nombre funcional del producto pasa a `PIA (Personal Information Admin)`, manteniendo BuscaTips como modulo interno de tips durante la migracion.
 
 ## 3) Arquitectura y flujo
 
 Flujo de datos general:
 
-1. Usuario interactua con `index.html`
-2. `js/script.js` orquesta eventos de UI y llama a `js/libreria.js`
-3. `js/libreria.js` consume `api/tips.php` via `fetch`
-4. `api/tips.php` enruta por metodo HTTP y usa `api/config.php`
-5. `api/config.php` abre conexion PDO y responde JSON estandarizado
-6. MySQL persiste la tabla `tips`
-7. Frontend renderiza Markdown con `marked` desde CDN
+1. Usuario aterriza en `Home` (PIA) en `index.html`
+2. `js/app.js` maneja rutas hash (`#home`, `#tips`, `#drive`)
+3. Al entrar a Tips, `js/script.js` orquesta UI de tips y usa `js/libreria.js`
+4. `js/libreria.js` consume `api/tips.php` via `fetch`
+5. `api/tips.php` enruta por metodo HTTP y usa `api/config.php`
+6. `api/config.php` abre conexion PDO y responde JSON estandarizado
+7. MySQL persiste la tabla `tips`
+8. Frontend renderiza Markdown con `marked` desde CDN
 
 ## 4) Frontend (detalle operativo)
 
 ### 4.1 `index.html`
 
-- Layout principal con `#sidebar` y `#contenido`
+- Define 3 pantallas en la misma SPA:
+  - `#home-screen` (modulos PIA)
+  - `#app` (modulo Tips heredado)
+  - `#drive-screen` (placeholder Drive Fase 1)
+- Fondo visual global oscuro minimalista
+- Layout Tips conserva `#sidebar` y `#contenido`
 - Buscador: input `#buscador`
 - Tabla de resultados: `#resultados-body`
 - Boton crear: `#btn-crear-tip` (desktop)
 - Toggle mobile de resultados: `#btn-toggle-resultados`
-- Carga `marked.min.js` por CDN y luego `js/script.js` como modulo
+- Carga `marked.min.js` por CDN y `js/app.js` como modulo principal
 
-### 4.2 `js/script.js` (orquestador)
+### 4.2 `js/app.js` (shell PIA + router)
+
+Responsabilidades principales:
+
+- Gestionar rutas hash (`#home`, `#tips`, `#drive`)
+- Mostrar/ocultar pantallas via clase `screen-hidden`
+- Conectar botones de modulos (`Tips`, `Drive`) y retorno a Home
+- Cargar modulo Tips de forma diferida al entrar a `#tips`
+
+### 4.3 `js/script.js` (orquestador Tips)
 
 Responsabilidades principales:
 
@@ -83,7 +100,7 @@ Eventos custom usados:
 - `activarEdicion`
 - `activarEliminacion`
 
-### 4.3 `js/libreria.js` (servicios + render)
+### 4.4 `js/libreria.js` (servicios + render Tips)
 
 Responsabilidades principales:
 
@@ -104,11 +121,13 @@ Comportamiento clave:
 - El sidebar muestra coincidencias por `nombre`
 - La API puede buscar por `nombre` o `contenido`; por eso el frontend refiltra para evitar falsos positivos visibles
 
-### 4.4 `css/style.css`
+### 4.5 `css/style.css`
 
-- Tema oscuro basado en tonos azul/petroleo
+- Tema oscuro minimalista para PIA (home + tips + drive placeholder)
+- Estilos de Home con tarjetas de modulo e iconografia SVG
 - Desktop: panel lateral fijo + visor
 - Mobile (`max-width: 768px`):
+  - Home colapsa tarjetas en una columna
   - acciones desktop ocultas
   - resultados colapsables
   - contenido con alto calculado
@@ -217,3 +236,11 @@ Checklist minimo por cambio:
 
 - 2026-06-21: Creacion inicial de `AGENTS.md` con analisis completo del estado actual del proyecto.
 - 2026-06-21: Alineacion de `README.md` con el estado real del repo (se removieron referencias a `css/fonts.css`, `test_api.html` y `tips.json`).
+- 2026-06-21: Fase 1 de PIA: se agrego `js/app.js`, Home con modulos `Tips/Drive`, rutas hash, fondo matrix con silueta hacker y placeholder de Drive; Tips queda operativo como modulo interno.
+- 2026-06-21: Ajuste visual Home Fase 1: titulo principal cambiado a `SmarTekSoft PIA`, subtitulo `Personal Information Admin` centrado, y aumento de tamano de iconos en tarjetas de modulos.
+- 2026-06-21: Refinamiento visual Home Fase 1: iconos de modulos aumentados a 44px y efecto glow en hover para mejorar legibilidad y foco visual.
+- 2026-06-21: Microinteracciones Home Fase 1: hover de tarjetas reforzado (elevacion, fondo y sombra) y pulso sutil de iconos con glow para feedback visual mas claro.
+- 2026-06-21: Ajuste de fondo Home Fase 1: overlay matrix uniformado para eliminar exceso de luz lateral derecha y equilibrar el contraste general.
+- 2026-06-21: Ajuste de contraste matrix Home Fase 1: se redujo opacidad del overlay y se incremento brillo/estela de caracteres para mejorar visibilidad del efecto sin perder uniformidad.
+- 2026-06-21: Correccion de carga Home Fase 1: el modulo Tips se paso a importacion diferida en `js/app.js` para evitar bloquear la inicializacion del fondo matrix cuando exista un error en el modulo de Tips.
+- 2026-06-21: Simplificacion visual Home Fase 1: se removio fondo matrix/silueta y se adopto fondo oscuro minimalista para mayor estabilidad visual y tecnica.

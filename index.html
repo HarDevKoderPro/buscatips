@@ -5,16 +5,46 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
-  <title>BuscaTips</title>
+  <title>PIA - Personal Information Admin</title>
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/fonts.css" />
   <link rel="shortcut icon" href="./images/code.ico" type="image/x-icon" />
 </head>
 
 <body>
-  <div id="app">
+  <section id="home-screen" class="home-screen">
+    <div class="home-content">
+      <h1>SmarTekSoft PIA</h1>
+      <p class="home-subtitle">Personal Information Admin</p>
+
+      <div class="module-grid">
+        <button id="btn-modulo-tips" class="module-card" type="button">
+          <span class="module-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img" focusable="false">
+              <path d="M9 18h6M10 21h4M12 3a7 7 0 0 0-4 12.7c.7.5 1.1 1.2 1.1 2h5.8c0-.8.4-1.5 1.1-2A7 7 0 0 0 12 3z"></path>
+            </svg>
+          </span>
+          <span class="module-name">Tips</span>
+          <span class="module-desc">Notas tecnicas en Markdown</span>
+        </button>
+
+        <button id="btn-modulo-drive" class="module-card" type="button">
+          <span class="module-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img" focusable="false">
+              <path d="M3 7h7l2 2h9v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"></path>
+              <path d="M3 10h18"></path>
+            </svg>
+          </span>
+          <span class="module-name">Drive</span>
+          <span class="module-desc">Archivos y carpetas personales</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div id="app" class="screen-hidden">
     <aside id="sidebar">
-      <h1>BuscaTips</h1>
+      <h1>PIA Tips</h1>
+      <button id="btn-volver-home-tips" class="btn-home" type="button">&larr; Inicio PIA</button>
 
       <!-- Acciones sólo visibles en DESKTOP -->
       <div class="sidebar-actions desktop-only">
@@ -53,9 +83,17 @@
     <main id="contenido"></main>
   </div>
 
+  <section id="drive-screen" class="drive-screen screen-hidden">
+    <div class="drive-placeholder">
+      <h2>PIA Drive</h2>
+      <p>Modulo en preparacion. Aqui se administraran carpetas y archivos con integracion a Dropbox.</p>
+      <button id="btn-volver-home-drive" class="btn-primary" type="button">Volver al inicio</button>
+    </div>
+  </section>
+
   <!-- Marked.js para renderizar Markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="js/script.js" type="module" defer></script>
+  <script src="js/app.js" type="module" defer></script>
 </body>
 
 </html>
