@@ -316,9 +316,16 @@ body {
   outline: none;
 }
 
-.category-select {
-  width: 100%;
+.category-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 12px;
+}
+
+.category-select {
+  flex: 1;
+  min-width: 0;
   padding: 10px 12px;
   background: #011627;
   border: 1px solid #1d3b53;
@@ -327,21 +334,11 @@ body {
   outline: none;
 }
 
-.resultados-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 36px;
-  padding: 0 4px 8px;
-  color: #b6c3d8;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
 .btn-toggle-tips {
   width: 28px;
   height: 28px;
   border: 0;
+  flex-shrink: 0;
   background: transparent;
   cursor: pointer;
   display: inline-flex;

@@ -22,7 +22,7 @@ import {
   obtenerTodosLosTips,
   filtrarPorCategoria,
   renderizarTabla,
-} from "./libreria.js?v=20260808-3";
+} from "./libreria.js?v=20260808-4";
 
 // Detección de mobile
 const esMobile = () => window.matchMedia("(max-width: 768px)").matches;
@@ -220,18 +220,11 @@ function expandirResultadosActuales() {
 }
 
 function actualizarCabeceraResultados() {
-  const categoriaId = obtenerCategoriaSeleccionada();
   const clave = obtenerClaveCategoriaSeleccionada();
-  const total = categoriaId
-    ? filtrarPorCategoria(obtenerTodosLosTips(), categoriaId).length
-    : obtenerTodosLosTips().length;
-  const categoria = categorias.find((item) => String(item.id) === String(categoriaId));
-  const nombre = categoria ? categoria.nombre : "Todas las categorias";
   const colapsado = Boolean(resultadosColapsados[clave]);
   const contenedor = document.getElementById("resultados-container");
   const boton = document.getElementById("btn-toggle-tips");
 
-  document.getElementById("resultados-contador").textContent = `${nombre} (${total})`;
   contenedor.classList.toggle("tips-collapsed", colapsado);
   boton.classList.toggle("collapsed", colapsado);
   boton.title = colapsado ? "Mostrar tips" : "Ocultar tips";
