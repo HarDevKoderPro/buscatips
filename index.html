@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
   <title>PIA - Personal Information Admin</title>
-  <link rel="stylesheet" href="css/style.css?v=20260808-2" />
+  <link rel="stylesheet" href="css/style.css?v=20260808-3" />
   <link rel="shortcut icon" href="./images/code.ico" type="image/x-icon" />
 </head>
 
@@ -75,6 +75,13 @@
         <option value="">Todas las categorias</option>
       </select>
 
+      <div id="resultados-header" class="resultados-header">
+        <span id="resultados-contador"></span>
+        <button id="btn-toggle-tips" class="btn-toggle-tips" type="button" aria-label="Ocultar tips" title="Ocultar tips">
+          <span class="toggle-tips-icon" aria-hidden="true"></span>
+        </button>
+      </div>
+
       <!-- CONTENEDOR RESULTADOS (columna lateral en desktop, panel deslizante en mobile) -->
       <div id="resultados-container">
         <table id="resultados">
@@ -97,7 +104,7 @@
 
   <!-- Marked.js para renderizar Markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="js/app.js?v=20260808-2" type="module" defer></script>
+  <script src="js/app.js?v=20260808-3" type="module" defer></script>
 </body>
 
 </html>

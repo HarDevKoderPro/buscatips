@@ -22,7 +22,7 @@ import {
   obtenerTodosLosTips,
   filtrarPorCategoria,
   renderizarTabla,
-} from "./libreria.js?v=20260808-2";
+} from "./libreria.js?v=20260808-3";
 
 // Detección de mobile
 const esMobile = () => window.matchMedia("(max-width: 768px)").matches;
@@ -35,6 +35,7 @@ let searchVersion = 0;
 let abortController = null;
 let tipsInicializado = false;
 let categorias = [];
+let resultadosColapsados = {};
 
 // ─── INICIALIZACIÓN ────
 
@@ -49,6 +50,7 @@ async function inicializarTips() {
   // Configurar buscador (disponible en todas las plataformas)
   configurarBuscador();
   configurarFiltroCategoria();
+  configurarToggleTips();
   aplicarFiltrosLocales();
 
   // Configurar toggle de resultados para mobile
@@ -172,7 +174,16 @@ function configurarFiltroCategoria() {
   document.getElementById("filtro-categoria").addEventListener("change", () => {
     searchVersion++;
     if (abortController) abortController.abort();
+    expandirResultadosActuales();
     aplicarFiltrosLocales();
+  });
+}
+
+function configurarToggleTips() {
+  document.getElementById("btn-toggle-tips").addEventListener("click", () => {
+    const clave = obtenerClaveCategoriaSeleccionada();
+    resultadosColapsados[clave] = !resultadosColapsados[clave];
+    actualizarCabeceraResultados();
   });
 }
 
@@ -180,21 +191,51 @@ function obtenerCategoriaSeleccionada() {
   return document.getElementById("filtro-categoria").value;
 }
 
+function obtenerClaveCategoriaSeleccionada() {
+  return obtenerCategoriaSeleccionada() || "todas";
+}
+
 function aplicarFiltrosLocales() {
   const texto = document.getElementById("buscador").value;
   const tips = texto.trim() ? filtrarTips(texto) : obtenerTodosLosTips();
   renderizarTabla(filtrarPorCategoria(tips, obtenerCategoriaSeleccionada()), texto);
+  actualizarCabeceraResultados();
 }
 
 async function cargarYRenderizarCategorias() {
   categorias = await cargarCategorias();
   const select = document.getElementById("filtro-categoria");
   const seleccionada = select.value;
-  select.innerHTML = '<option value="">Todas las categorias</option>';
+  const totalTips = obtenerTodosLosTips().length;
+  select.innerHTML = `<option value="">Todas las categorias (${totalTips})</option>`;
   categorias.forEach((categoria) => {
-    select.add(new Option(categoria.nombre, categoria.id));
+    const cantidad = filtrarPorCategoria(obtenerTodosLosTips(), categoria.id).length;
+    select.add(new Option(`${categoria.nombre} (${cantidad})`, categoria.id));
   });
   select.value = seleccionada;
+}
+
+function expandirResultadosActuales() {
+  resultadosColapsados[obtenerClaveCategoriaSeleccionada()] = false;
+}
+
+function actualizarCabeceraResultados() {
+  const categoriaId = obtenerCategoriaSeleccionada();
+  const clave = obtenerClaveCategoriaSeleccionada();
+  const total = categoriaId
+    ? filtrarPorCategoria(obtenerTodosLosTips(), categoriaId).length
+    : obtenerTodosLosTips().length;
+  const categoria = categorias.find((item) => String(item.id) === String(categoriaId));
+  const nombre = categoria ? categoria.nombre : "Todas las categorias";
+  const colapsado = Boolean(resultadosColapsados[clave]);
+  const contenedor = document.getElementById("resultados-container");
+  const boton = document.getElementById("btn-toggle-tips");
+
+  document.getElementById("resultados-contador").textContent = `${nombre} (${total})`;
+  contenedor.classList.toggle("tips-collapsed", colapsado);
+  boton.classList.toggle("collapsed", colapsado);
+  boton.title = colapsado ? "Mostrar tips" : "Ocultar tips";
+  boton.setAttribute("aria-label", boton.title);
 }
 
 // ─── TOGGLE RESULTADOS MOBILE ────

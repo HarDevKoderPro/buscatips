@@ -286,4 +286,4 @@ Checklist minimo por cambio:
 - 2026-08-07: Interfaz Tips: se centro el titulo `PIA Tips` del panel lateral.
 - 2026-08-08: Categorías de Tips: se agregan migración SQL, API de categorías, asignación opcional por tip, creación desde el editor y filtrado combinado por categoría y texto.
 - 2026-08-08: Caché de frontend: se agrega versionado manual compartido a CSS y módulos JavaScript para forzar la carga de recursos actualizados tras cada deploy.
-- 2026-08-08: Resultados por categoría: se agregan contadores en el filtro y una cabecera con control de expandir o colapsar la lista por categoría.
+- 2026-08-08: Resultados por categoría: se agregan contadores en el filtro y una cabecera con control de expandir o colapsar la lista por categoría; se completa su inclusión en HTML y JavaScript tras detectar un despliegue incompleto.
