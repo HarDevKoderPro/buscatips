@@ -749,12 +749,6 @@ main#contenido pre code[class*="language-"] {
   flex-shrink: 0;
   margin-left: 8px;
   justify-content: flex-end;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-#resultados tbody tr:hover .tip-acciones {
-  opacity: 1;
 }
 
 .btn-accion-tip {
