@@ -145,6 +145,7 @@ Comportamiento clave:
 - Estilos de Home con tarjetas de modulo e iconografia SVG
 - Desktop: panel lateral responsivo (`clamp(400px, 35vw, 520px)`) + visor flexible, para priorizar titulos de tips y acciones visibles
 - Acciones de editar y eliminar visibles permanentemente al final de cada resultado de tip
+- El tip abierto se resalta en la lista con un efecto glass translúcido
 - Titulo `PIA Tips` centrado en el panel lateral
 - Se carga desde `index.html` con parámetro de versión para evitar CSS desactualizado en caché
 - Mobile (`max-width: 768px`):
@@ -297,3 +298,4 @@ Checklist minimo por cambio:
 - 2026-08-08: Bloques de código: se integra Highlight.js para resaltar sintaxis en Markdown con estilos oscuros compatibles con PIA Tips.
 - 2026-08-08: Corrección de resaltado: Highlight.js procesa los bloques HTML resultantes de Marked para compatibilidad con su versión actual de CDN.
 - 2026-08-08: Corrección de CDN: se reemplaza la distribución CommonJS de Highlight.js por su build de navegador, que expone `window.hljs` para el resaltado.
+- 2026-08-08: Selección de Tips: el tip abierto se diferencia visualmente en la lista mediante un efecto glass translúcido.

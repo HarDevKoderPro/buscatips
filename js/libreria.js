@@ -376,6 +376,9 @@ function mostrarContenido(tip) {
     </div>
   `;
   resaltarBloquesCodigo(contenedor);
+  document.querySelectorAll("#resultados tbody tr").forEach((fila) => {
+    fila.classList.toggle("tip-seleccionado", String(fila.dataset.tipId) === String(tip.id));
+  });
 }
 
 export function resaltarBloquesCodigo(contenedor) {
@@ -396,6 +399,8 @@ export function renderizarTabla(tips, textoBusqueda = "") {
 
   tips.forEach((tip) => {
     const tr = document.createElement("tr");
+    tr.dataset.tipId = tip.id;
+    tr.classList.toggle("tip-seleccionado", String(tip.id) === String(tipActualId));
     const td = document.createElement("td");
 
     // Enlace con nombre del tip
