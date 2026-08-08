@@ -132,6 +132,7 @@ Comportamiento clave:
 - Estilos de Home con tarjetas de modulo e iconografia SVG
 - Desktop: panel lateral responsivo (`clamp(400px, 35vw, 520px)`) + visor flexible, para priorizar titulos de tips y acciones visibles
 - Acciones de editar y eliminar visibles permanentemente al final de cada resultado de tip
+- Titulo `PIA Tips` centrado en el panel lateral
 - Mobile (`max-width: 768px`):
   - Home colapsa tarjetas en una columna
   - acciones desktop ocultas
@@ -253,3 +254,4 @@ Checklist minimo por cambio:
 - 2026-06-21: Correccion funcional Tips Fase 1: `js/script.js` ahora soporta inicializacion post `DOMContentLoaded` para que busqueda y CRUD funcionen correctamente al entrar desde Home con importacion diferida.
 - 2026-08-07: Layout desktop de Tips: el panel lateral pasa a ancho responsivo limitado (`400px` a `520px`) para dar mas espacio a titulos y acciones de cada tip; el visor usa el espacio restante.
 - 2026-08-07: Acciones de Tips: los iconos de editar y eliminar quedan visibles permanentemente en cada resultado del panel lateral.
+- 2026-08-07: Interfaz Tips: se centro el titulo `PIA Tips` del panel lateral.
