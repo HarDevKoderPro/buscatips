@@ -24,7 +24,8 @@ import {
   obtenerTodosLosTips,
   filtrarPorCategoria,
   renderizarTabla,
-} from "./libreria.js?v=20260808-8";
+  resaltarBloquesCodigo,
+} from "./libreria.js?v=20260808-10";
 
 // Detección de mobile
 const esMobile = () => window.matchMedia("(max-width: 768px)").matches;
@@ -403,14 +404,8 @@ function abrirEditor(
       textarea.classList.remove("hidden");
       btnPreview.textContent = "Vista Previa";
     } else {
-      previewArea.innerHTML = marked.parse(textarea.value, {
-        highlight(codigo, lenguaje) {
-          if (lenguaje && window.hljs?.getLanguage(lenguaje)) {
-            return window.hljs.highlight(codigo, { language: lenguaje }).value;
-          }
-          return window.hljs?.highlightAuto(codigo).value || codigo;
-        },
-      });
+      previewArea.innerHTML = marked.parse(textarea.value);
+      resaltarBloquesCodigo(previewArea);
       textarea.classList.add("hidden");
       previewArea.classList.remove("hidden");
       btnPreview.textContent = "Editar";
