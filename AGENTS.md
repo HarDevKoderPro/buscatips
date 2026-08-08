@@ -67,7 +67,7 @@ Flujo de datos general:
   - `#drive-screen` (placeholder Drive Fase 1)
 - Fondo visual global oscuro minimalista
 - Layout Tips conserva `#sidebar` y `#contenido`
-- Buscador: input `#buscador`
+- Buscador: input `#buscador` con placeholder `Buscar por nombre...`; al escribir expande automáticamente los resultados colapsados
 - Filtro de categoría: select `#filtro-categoria`; combina categoría y texto con criterio AND
 - Filtro de categoría con contador y control adyacente para colapsar o expandir su lista
 - Tabla de resultados: `#resultados-body`
@@ -287,3 +287,4 @@ Checklist minimo por cambio:
 - 2026-08-08: Categorías de Tips: se agregan migración SQL, API de categorías, asignación opcional por tip, creación desde el editor y filtrado combinado por categoría y texto.
 - 2026-08-08: Caché de frontend: se agrega versionado manual compartido a CSS y módulos JavaScript para forzar la carga de recursos actualizados tras cada deploy.
 - 2026-08-08: Resultados por categoría: se agregan contadores en el filtro y un control adyacente para expandir o colapsar la lista por categoría; se completa su inclusión en HTML y JavaScript tras detectar un despliegue incompleto.
+- 2026-08-08: Búsqueda de Tips: se elimina el icono decorativo de lupa, se aclara el placeholder por nombre y se expande visualmente la lista al escribir una búsqueda.

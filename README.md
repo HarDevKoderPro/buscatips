@@ -285,7 +285,7 @@ http://localhost/BuscaTips/
 6. Haz clic en **"Crear Tip"** para guardarlo en la base de datos
 
 ### Buscar Tips
-1. Escribe en el campo **"Buscar tips..."** del panel lateral
+1. Escribe en el campo **"Buscar por nombre..."** del panel lateral
 2. Los resultados aparecen en tiempo real con las coincidencias resaltadas
 3. Haz clic en un resultado para ver el contenido completo en el panel principal
 
