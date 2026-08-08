@@ -187,7 +187,7 @@ body {
 
 /* SIDEBAR (layout desktop por defecto) */
 #sidebar {
-  width: 350px;
+  width: clamp(400px, 35vw, 520px);
   background: #01111d;
   border-right: 1px solid #1d3b53;
   display: flex;
