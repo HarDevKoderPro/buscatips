@@ -327,10 +327,51 @@ body {
   outline: none;
 }
 
+.resultados-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 36px;
+  padding: 0 4px 8px;
+  color: #b6c3d8;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.btn-toggle-tips {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-tips-icon {
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid #7fdbca;
+  border-left: 2px solid #7fdbca;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.btn-toggle-tips.collapsed .toggle-tips-icon {
+  transform: rotate(225deg);
+}
+
 /* Resultados (comportamiento desktop por defecto) */
 #resultados-container {
   flex: 1;
   overflow-y: auto;
+}
+
+#resultados-container.tips-collapsed {
+  flex: 0;
+  max-height: 0;
+  overflow: hidden;
 }
 
 #resultados {
@@ -717,6 +758,7 @@ main#contenido pre code[class*="language-"] {
     max-height: 0;
     overflow: hidden;
   }
+
 
   /* El contenido ocupa el resto de la pantalla y hace scroll */
   #contenido {

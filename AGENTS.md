@@ -69,6 +69,7 @@ Flujo de datos general:
 - Layout Tips conserva `#sidebar` y `#contenido`
 - Buscador: input `#buscador`
 - Filtro de categoría: select `#filtro-categoria`; combina categoría y texto con criterio AND
+- Cabecera de resultados: muestra categoría activa, contador total de esa categoría y control para colapsar o expandir su lista
 - Tabla de resultados: `#resultados-body`
 - Boton crear: `#btn-crear-tip` (desktop)
 - Toggle mobile de resultados: `#btn-toggle-resultados`
@@ -105,6 +106,7 @@ Responsabilidades principales:
 - Crear categorías desde el selector del editor mediante `+ Crear nueva categoria...`
 - Manejar eliminacion con confirmacion
 - Mostrar mensajes temporales de exito
+- Mantener el estado de colapso de resultados por categoría durante la sesión
 
 Eventos custom usados:
 
@@ -284,3 +286,4 @@ Checklist minimo por cambio:
 - 2026-08-07: Interfaz Tips: se centro el titulo `PIA Tips` del panel lateral.
 - 2026-08-08: Categorías de Tips: se agregan migración SQL, API de categorías, asignación opcional por tip, creación desde el editor y filtrado combinado por categoría y texto.
 - 2026-08-08: Caché de frontend: se agrega versionado manual compartido a CSS y módulos JavaScript para forzar la carga de recursos actualizados tras cada deploy.
+- 2026-08-08: Resultados por categoría: se agregan contadores en el filtro y una cabecera con control de expandir o colapsar la lista por categoría.

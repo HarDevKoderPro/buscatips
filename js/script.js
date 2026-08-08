@@ -22,7 +22,7 @@ import {
   obtenerTodosLosTips,
   filtrarPorCategoria,
   renderizarTabla,
-} from "./libreria.js?v=20260808-1";
+} from "./libreria.js?v=20260808-2";
 
 // Detección de mobile
 const esMobile = () => window.matchMedia("(max-width: 768px)").matches;
@@ -93,6 +93,7 @@ function configurarBuscador() {
 
   inputBuscador.addEventListener("input", (e) => {
     const texto = e.target.value;
+    expandirResultadosActuales();
 
     // Incrementar versión de búsqueda para invalidar cualquier respuesta en vuelo
     searchVersion++;
