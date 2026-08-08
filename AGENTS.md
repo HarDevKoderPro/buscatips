@@ -69,7 +69,7 @@ Flujo de datos general:
 - Layout Tips conserva `#sidebar` y `#contenido`
 - Buscador: input `#buscador` con placeholder `Buscar por nombre...`; al escribir expande automáticamente los resultados colapsados
 - Filtro de categoría: select `#filtro-categoria`; combina categoría y texto con criterio AND
-- Filtro de categoría con contador y control adyacente para colapsar o expandir su lista
+- Filtro de categoría con control adyacente para colapsar o expandir su lista; los contadores se muestran en la gestión de categorías
 - Tabla de resultados: `#resultados-body`
 - Boton crear: `#btn-crear-tip` (desktop)
 - Toggle mobile de resultados: `#btn-toggle-resultados`
@@ -292,4 +292,4 @@ Checklist minimo por cambio:
 - 2026-08-08: Resultados por categoría: se agregan contadores en el filtro y un control adyacente para expandir o colapsar la lista por categoría; se completa su inclusión en HTML y JavaScript tras detectar un despliegue incompleto.
 - 2026-08-08: Búsqueda de Tips: se elimina el icono decorativo de lupa, se aclara el placeholder por nombre y se expande visualmente la lista al escribir una búsqueda.
 - 2026-08-08: Categorías obligatorias: se bloquea el guardado de tips sin categoría en frontend y API, y se muestra un check con tooltip en los tips ya clasificados.
-- 2026-08-08: Gestión de categorías: se permite renombrar categorías y eliminar únicamente las que no tienen tips asignados.
+- 2026-08-08: Gestión de categorías: se permite renombrar categorías y eliminar únicamente las que no tienen tips asignados; los contadores se concentran en ese panel para simplificar el selector.

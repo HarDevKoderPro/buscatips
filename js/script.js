@@ -24,7 +24,7 @@ import {
   obtenerTodosLosTips,
   filtrarPorCategoria,
   renderizarTabla,
-} from "./libreria.js?v=20260808-7";
+} from "./libreria.js?v=20260808-8";
 
 // Detección de mobile
 const esMobile = () => window.matchMedia("(max-width: 768px)").matches;
@@ -210,11 +210,9 @@ async function cargarYRenderizarCategorias() {
   categorias = await cargarCategorias();
   const select = document.getElementById("filtro-categoria");
   const seleccionada = select.value;
-  const totalTips = obtenerTodosLosTips().length;
-  select.innerHTML = `<option value="">Todas las categorias (${totalTips})</option>`;
+  select.innerHTML = '<option value="">Todas las categorias</option>';
   categorias.forEach((categoria) => {
-    const cantidad = filtrarPorCategoria(obtenerTodosLosTips(), categoria.id).length;
-    select.add(new Option(`${categoria.nombre} (${cantidad})`, categoria.id));
+    select.add(new Option(categoria.nombre, categoria.id));
   });
   select.value = seleccionada;
 }
