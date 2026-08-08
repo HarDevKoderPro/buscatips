@@ -521,6 +521,10 @@ git push origin main
 
 GitHub Actions se encargará de sincronizar los archivos al servidor automáticamente. ✅
 
+### Actualización de Archivos Estáticos
+
+Los recursos de frontend usan un parámetro de versión en sus rutas para evitar que el navegador conserve JavaScript o CSS anterior después de un despliegue. Cuando se modifique cualquier archivo frontend que requiera actualización inmediata, incrementa el mismo valor `v=` en `index.html`, `js/app.js` y `js/script.js`.
+
 ### Despliegue Manual
 
 1. Sube todos los archivos al servidor vía FTP/SFTP

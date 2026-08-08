@@ -22,7 +22,7 @@ import {
   obtenerTodosLosTips,
   filtrarPorCategoria,
   renderizarTabla,
-} from "./libreria.js";
+} from "./libreria.js?v=20260808-1";
 
 // Detección de mobile
 const esMobile = () => window.matchMedia("(max-width: 768px)").matches;

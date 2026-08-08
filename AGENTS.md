@@ -82,6 +82,7 @@ Responsabilidades principales:
 - Mostrar/ocultar pantallas via clase `screen-hidden`
 - Conectar botones de modulos (`Tips`, `Drive`) y retorno a Home
 - Cargar modulo Tips de forma diferida al entrar a `#tips`
+- Importar `script.js` con el mismo parámetro de versión de recursos estáticos para invalidar caché tras deploy
 
 ### 4.3 `js/script.js` (orquestador Tips)
 
@@ -93,6 +94,7 @@ Correccion de inicializacion relevante:
 Responsabilidades principales:
 
 - Inicializar app cuando el modulo esta disponible (antes o despues de `DOMContentLoaded`)
+- Importar `libreria.js` con el parámetro de versión compartido para invalidar caché tras deploy
 - Cargar cache local con `cargarTips()`
 - Gestionar busqueda con:
   - filtro local inmediato
@@ -140,6 +142,7 @@ Comportamiento clave:
 - Desktop: panel lateral responsivo (`clamp(400px, 35vw, 520px)`) + visor flexible, para priorizar titulos de tips y acciones visibles
 - Acciones de editar y eliminar visibles permanentemente al final de cada resultado de tip
 - Titulo `PIA Tips` centrado en el panel lateral
+- Se carga desde `index.html` con parámetro de versión para evitar CSS desactualizado en caché
 - Mobile (`max-width: 768px`):
   - Home colapsa tarjetas en una columna
   - acciones desktop ocultas
@@ -232,6 +235,8 @@ Archivo: `.github/workflows/deploy.yml`
 
 Destino actual configurado: `digitalbrain.girabienes.com/`
 
+Recursos estáticos: `index.html`, `js/app.js` y `js/script.js` comparten un parámetro `v=` en sus importaciones de CSS/JS. Incrementarlo en los tres archivos cuando un cambio frontend deba invalidar la caché del navegador.
+
 ## 8) Riesgos y deuda tecnica detectada
 
 1. Seguridad: hay credenciales de BD hardcodeadas en `api/config.php`. Deben migrarse a variables de entorno y rotarse si fueron expuestas.
@@ -278,3 +283,4 @@ Checklist minimo por cambio:
 - 2026-08-07: Acciones de Tips: los iconos de editar y eliminar quedan visibles permanentemente en cada resultado del panel lateral.
 - 2026-08-07: Interfaz Tips: se centro el titulo `PIA Tips` del panel lateral.
 - 2026-08-08: Categorías de Tips: se agregan migración SQL, API de categorías, asignación opcional por tip, creación desde el editor y filtrado combinado por categoría y texto.
+- 2026-08-08: Caché de frontend: se agrega versionado manual compartido a CSS y módulos JavaScript para forzar la carga de recursos actualizados tras cada deploy.
