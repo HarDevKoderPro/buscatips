@@ -103,7 +103,7 @@ Responsabilidades principales:
   - `AbortController` para cancelar requests obsoletos
   - control de version de busqueda (`searchVersion`)
 - Abrir editor unificado para crear/editar
-- Crear categorías desde el selector del editor mediante `+ Crear nueva categoria...`
+- Crear categorías desde el selector del editor mediante `+ Crear nueva categoria...`; la categoría es obligatoria para guardar
 - Manejar eliminacion con confirmacion
 - Mostrar mensajes temporales de exito
 - Mantener el estado de colapso de resultados por categoría durante la sesión
@@ -254,7 +254,7 @@ Recursos estáticos: `index.html`, `js/app.js` y `js/script.js` comparten un par
   - `libreria.js`: datos/API/render de lista
 - Si cambia el criterio de busqueda en backend, reflejarlo tambien en el refiltrado frontend.
 - Si se agregan nuevos endpoints, documentarlos en `README.md` y en este archivo.
-- Las categorías son únicas por nombre y cada tip tiene como máximo una categoría opcional.
+- Las categorías son únicas por nombre y cada tip tiene exactamente una categoría al crearse o editarse; los tips antiguos sin categoría deben clasificarse al modificarlos.
 - Si se agregan archivos o carpetas, actualizar snapshot de estructura.
 
 ## 10) Protocolo obligatorio de actualizacion de AGENTS.md
@@ -284,7 +284,8 @@ Checklist minimo por cambio:
 - 2026-08-07: Layout desktop de Tips: el panel lateral pasa a ancho responsivo limitado (`400px` a `520px`) para dar mas espacio a titulos y acciones de cada tip; el visor usa el espacio restante.
 - 2026-08-07: Acciones de Tips: los iconos de editar y eliminar quedan visibles permanentemente en cada resultado del panel lateral.
 - 2026-08-07: Interfaz Tips: se centro el titulo `PIA Tips` del panel lateral.
-- 2026-08-08: Categorías de Tips: se agregan migración SQL, API de categorías, asignación opcional por tip, creación desde el editor y filtrado combinado por categoría y texto.
+- 2026-08-08: Categorías de Tips: se agregan migración SQL, API de categorías, asignación por tip, creación desde el editor y filtrado combinado por categoría y texto.
 - 2026-08-08: Caché de frontend: se agrega versionado manual compartido a CSS y módulos JavaScript para forzar la carga de recursos actualizados tras cada deploy.
 - 2026-08-08: Resultados por categoría: se agregan contadores en el filtro y un control adyacente para expandir o colapsar la lista por categoría; se completa su inclusión en HTML y JavaScript tras detectar un despliegue incompleto.
 - 2026-08-08: Búsqueda de Tips: se elimina el icono decorativo de lupa, se aclara el placeholder por nombre y se expande visualmente la lista al escribir una búsqueda.
+- 2026-08-08: Categorías obligatorias: se bloquea el guardado de tips sin categoría en frontend y API, y se muestra un check con tooltip en los tips ya clasificados.

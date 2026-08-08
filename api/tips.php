@@ -262,10 +262,9 @@ function manejarPUT(): void
     // Validar que al menos un campo venga para actualizar
     $nombre    = isset($datos['nombre'])    ? trim($datos['nombre'])    : null;
     $contenido = isset($datos['contenido']) ? trim($datos['contenido']) : null;
-    $incluyeCategoria = array_key_exists('categoria_id', $datos);
-    $categoriaId = $incluyeCategoria ? obtenerCategoriaId($db, $datos) : null;
+    $categoriaId = obtenerCategoriaId($db, $datos);
 
-    if ($nombre === null && $contenido === null && !$incluyeCategoria) {
+    if ($nombre === null && $contenido === null && !array_key_exists('categoria_id', $datos)) {
         responderJSON(400, false, null, 'Debe enviar al menos "nombre", "contenido" o "categoria_id" para actualizar.');
     }
 
@@ -289,10 +288,8 @@ function manejarPUT(): void
         $campos[] = 'contenido = :contenido';
         $parametros[':contenido'] = $contenido;
     }
-    if ($incluyeCategoria) {
-        $campos[] = 'categoria_id = :categoria_id';
-        $parametros[':categoria_id'] = $categoriaId;
-    }
+    $campos[] = 'categoria_id = :categoria_id';
+    $parametros[':categoria_id'] = $categoriaId;
 
     // fecha_modificacion se actualiza automáticamente por ON UPDATE CURRENT_TIMESTAMP
     // pero lo forzamos por si acaso solo cambia un campo
@@ -380,16 +377,16 @@ function validarCamposTip($datos): array
     return $errores;
 }
 
-function obtenerCategoriaId(PDO $db, array $datos): ?int
+function obtenerCategoriaId(PDO $db, array $datos): int
 {
     $valor = $datos['categoria_id'] ?? null;
     if ($valor === null || $valor === '') {
-        return null;
+        responderJSON(400, false, null, 'Debe seleccionar una categoria para guardar el tip.');
     }
 
     $categoriaId = filter_var($valor, FILTER_VALIDATE_INT);
     if ($categoriaId === false || $categoriaId <= 0) {
-        responderJSON(400, false, null, 'El campo "categoria_id" debe ser un entero positivo o null.');
+        responderJSON(400, false, null, 'El campo "categoria_id" debe ser un entero positivo.');
     }
     $stmt = $db->prepare('SELECT id FROM categorias WHERE id = :id');
     $stmt->execute([':id' => $categoriaId]);

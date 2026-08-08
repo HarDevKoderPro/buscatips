@@ -143,10 +143,10 @@ export async function crearCategoria(nombre) {
  * POST /api/tips.php
  * @param {string} nombre - Título del tip
  * @param {string} contenido - Contenido en Markdown
- * @param {number|null} categoriaId - Categoría opcional del tip
+ * @param {number} categoriaId - Categoría obligatoria del tip
  * @returns {Object|null} Tip creado o null si falló
  */
-export async function crearTip(nombre, contenido, categoriaId = null) {
+export async function crearTip(nombre, contenido, categoriaId) {
   try {
     const response = await fetch(API_URL, {
       method: "POST",
@@ -175,10 +175,10 @@ export async function crearTip(nombre, contenido, categoriaId = null) {
  * @param {number} id - ID del tip
  * @param {string} nombre - Nuevo título
  * @param {string} contenido - Nuevo contenido en Markdown
- * @param {number|null} categoriaId - Categoría opcional del tip
+ * @param {number} categoriaId - Categoría obligatoria del tip
  * @returns {Object|null} Tip actualizado o null si falló
  */
-export async function editarTip(id, nombre, contenido, categoriaId = null) {
+export async function editarTip(id, nombre, contenido, categoriaId) {
   try {
     const response = await fetch(`${API_URL}?id=${id}`, {
       method: "PUT",
@@ -375,6 +375,14 @@ export function renderizarTabla(tips, textoBusqueda = "") {
     if (!esMobile()) {
       const acciones = document.createElement("span");
       acciones.className = "tip-acciones desktop-only";
+
+      if (tip.categoria_id) {
+        const categoriaAsignada = document.createElement("span");
+        categoriaAsignada.className = "tip-categoria-asignada";
+        categoriaAsignada.textContent = "✓";
+        categoriaAsignada.title = `Categoria: ${tip.categoria_nombre || "asignada"}`;
+        acciones.appendChild(categoriaAsignada);
+      }
 
       // Botón editar
       const btnEditar = document.createElement("button");

@@ -803,6 +803,13 @@ main#contenido pre code[class*="language-"] {
   justify-content: flex-end;
 }
 
+.tip-categoria-asignada {
+  color: #9af5ce;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .btn-accion-tip {
   background: transparent;
   border: none;

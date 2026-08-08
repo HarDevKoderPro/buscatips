@@ -73,7 +73,7 @@
 - Carga automática de todos los tips al iniciar
 
 ### 🗂️ Categorías
-- Cada tip puede pertenecer opcionalmente a una categoría
+- Cada tip debe pertenecer a una categoría
 - Filtro por categoría, combinado con la búsqueda textual
 - Creación de categorías directamente desde el editor de tips
 
@@ -279,7 +279,7 @@ http://localhost/BuscaTips/
 ### Crear un Tip
 1. Haz clic en **"+ Crear Tip"** (solo disponible en desktop)
 2. Escribe el **nombre** del tip (título)
-3. Selecciona una categoría existente, déjalo como **"Sin categoría"** o selecciona **"+ Crear nueva categoría..."**
+3. Selecciona una categoría existente o selecciona **"+ Crear nueva categoría..."**
 4. Escribe el **contenido** en formato Markdown
 5. Opcionalmente, haz clic en **"Vista Previa"** para ver cómo se renderizará
 6. Haz clic en **"Crear Tip"** para guardarlo en la base de datos

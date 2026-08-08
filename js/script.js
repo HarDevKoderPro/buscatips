@@ -22,7 +22,7 @@ import {
   obtenerTodosLosTips,
   filtrarPorCategoria,
   renderizarTabla,
-} from "./libreria.js?v=20260808-5";
+} from "./libreria.js?v=20260808-6";
 
 // Detección de mobile
 const esMobile = () => window.matchMedia("(max-width: 768px)").matches;
@@ -368,10 +368,14 @@ function abrirEditor(
     .addEventListener("click", async () => {
       const titulo = document.getElementById("editor-title").value.trim();
       const contenido = textarea.value.trim();
-      const categoriaId = selectCategoria.value || null;
+      const categoriaId = selectCategoria.value;
 
       if (!titulo || !contenido) {
         alert("Completa título y contenido.");
+        return;
+      }
+      if (!categoriaId) {
+        alert("Selecciona o crea una categoria antes de guardar el tip.");
         return;
       }
 
@@ -396,7 +400,7 @@ function abrirEditor(
 }
 
 function renderizarCategoriasEditor(select, categoriaIdSeleccionada) {
-  select.innerHTML = '<option value="">Sin categoria</option>';
+  select.innerHTML = '<option value="" disabled>Selecciona una categoria...</option>';
   categorias.forEach((categoria) => {
     select.add(new Option(categoria.nombre, categoria.id));
   });
