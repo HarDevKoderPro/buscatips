@@ -7,7 +7,7 @@
  * Endpoints disponibles:
  * 
  *   GET    /api/tips.php              → Listar todos los tips
- *   GET    /api/tips.php?buscar=texto → Buscar tips por nombre o contenido
+ *   GET    /api/tips.php?buscar=texto&categoria_id=X → Buscar por texto y categoría
  *   GET    /api/tips.php?id=X         → Obtener un tip específico
  *   POST   /api/tips.php              → Crear un nuevo tip
  *   PUT    /api/tips.php?id=X         → Editar un tip existente
@@ -97,9 +97,10 @@ function manejarGET(): void
         }
 
         $stmt = $db->prepare('
-            SELECT id, nombre, contenido, fecha_creacion, fecha_modificacion 
-            FROM tips 
-            WHERE id = :id
+            SELECT t.id, t.nombre, t.contenido, t.categoria_id, c.nombre AS categoria_nombre,
+                   t.fecha_creacion, t.fecha_modificacion
+            FROM tips t LEFT JOIN categorias c ON c.id = t.categoria_id
+            WHERE t.id = :id
         ');
         $stmt->execute([':id' => $id]);
         $tip = $stmt->fetch();
@@ -111,31 +112,43 @@ function manejarGET(): void
         responderJSON(200, true, $tip);
     }
 
-    // ── Caso 2: Buscar tips por texto ──
+    $categoriaId = isset($_GET['categoria_id']) ? filter_var($_GET['categoria_id'], FILTER_VALIDATE_INT) : null;
+    if (isset($_GET['categoria_id']) && ($categoriaId === false || $categoriaId <= 0)) {
+        responderJSON(400, false, null, 'El parametro "categoria_id" debe ser un numero entero positivo.');
+    }
+
+    // ── Caso 2: Buscar tips por texto y/o categoria ──
     if (isset($_GET['buscar']) && trim($_GET['buscar']) !== '') {
         $termino = '%' . trim($_GET['buscar']) . '%';
-
-        $stmt = $db->prepare('
-            SELECT id, nombre, contenido, fecha_creacion, fecha_modificacion 
-            FROM tips 
-            WHERE nombre LIKE :termino OR contenido LIKE :termino2
-            ORDER BY fecha_modificacion DESC
-        ');
-        $stmt->execute([
+        $sql = 'SELECT t.id, t.nombre, t.contenido, t.categoria_id, c.nombre AS categoria_nombre,
+                       t.fecha_creacion, t.fecha_modificacion
+                FROM tips t LEFT JOIN categorias c ON c.id = t.categoria_id
+                WHERE (t.nombre LIKE :termino OR t.contenido LIKE :termino2)';
+        $parametros = [
             ':termino'  => $termino,
             ':termino2' => $termino,
-        ]);
+        ];
+        if ($categoriaId !== null) {
+            $sql .= ' AND t.categoria_id = :categoria_id';
+            $parametros[':categoria_id'] = $categoriaId;
+        }
+        $stmt = $db->prepare($sql . ' ORDER BY t.fecha_modificacion DESC');
+        $stmt->execute($parametros);
         $tips = $stmt->fetchAll();
 
         responderJSON(200, true, $tips, count($tips) . ' tip(s) encontrado(s).');
     }
 
     // ── Caso 3: Listar todos los tips ──
-    $stmt = $db->query('
-        SELECT id, nombre, contenido, fecha_creacion, fecha_modificacion 
-        FROM tips 
-        ORDER BY fecha_modificacion DESC
-    ');
+    $sql = 'SELECT t.id, t.nombre, t.contenido, t.categoria_id, c.nombre AS categoria_nombre,
+                   t.fecha_creacion, t.fecha_modificacion
+            FROM tips t LEFT JOIN categorias c ON c.id = t.categoria_id';
+    if ($categoriaId !== null) {
+        $stmt = $db->prepare($sql . ' WHERE t.categoria_id = :categoria_id ORDER BY t.fecha_modificacion DESC');
+        $stmt->execute([':categoria_id' => $categoriaId]);
+    } else {
+        $stmt = $db->query($sql . ' ORDER BY t.fecha_modificacion DESC');
+    }
     $tips = $stmt->fetchAll();
 
     responderJSON(200, true, $tips, count($tips) . ' tip(s) en total.');
@@ -146,7 +159,7 @@ function manejarGET(): void
  * POST - Crear un nuevo tip
  * 
  * Body JSON esperado:
- *   { "nombre": "Título del tip", "contenido": "Contenido del tip" }
+ *   { "nombre": "Título del tip", "contenido": "Contenido del tip", "categoria_id": 1 }
  * 
  * Respuesta exitosa: 201 Created
  */
@@ -170,20 +183,27 @@ function manejarPOST(): void
 
     $nombre    = trim($datos['nombre']);
     $contenido = trim($datos['contenido']);
+    $categoriaId = obtenerCategoriaId($db, $datos);
 
     $stmt = $db->prepare('
-        INSERT INTO tips (nombre, contenido, fecha_creacion, fecha_modificacion) 
-        VALUES (:nombre, :contenido, NOW(), NOW())
+        INSERT INTO tips (nombre, contenido, categoria_id, fecha_creacion, fecha_modificacion)
+        VALUES (:nombre, :contenido, :categoria_id, NOW(), NOW())
     ');
     $stmt->execute([
         ':nombre'    => $nombre,
         ':contenido' => $contenido,
+        ':categoria_id' => $categoriaId,
     ]);
 
     $nuevoId = (int) $db->lastInsertId();
 
     // Obtener el tip recién creado para devolverlo completo
-    $stmt = $db->prepare('SELECT * FROM tips WHERE id = :id');
+    $stmt = $db->prepare('
+        SELECT t.id, t.nombre, t.contenido, t.categoria_id, c.nombre AS categoria_nombre,
+               t.fecha_creacion, t.fecha_modificacion
+        FROM tips t LEFT JOIN categorias c ON c.id = t.categoria_id
+        WHERE t.id = :id
+    ');
     $stmt->execute([':id' => $nuevoId]);
     $tipCreado = $stmt->fetch();
 
@@ -196,7 +216,7 @@ function manejarPOST(): void
  * 
  * URL: /api/tips.php?id=X
  * Body JSON esperado:
- *   { "nombre": "Nuevo título", "contenido": "Nuevo contenido" }
+ *   { "nombre": "Nuevo título", "contenido": "Nuevo contenido", "categoria_id": 1 }
  * 
  * Se pueden enviar ambos campos o solo uno de ellos.
  */
@@ -215,7 +235,12 @@ function manejarPUT(): void
     }
 
     // Verificar que el tip existe
-    $stmt = $db->prepare('SELECT * FROM tips WHERE id = :id');
+    $stmt = $db->prepare('
+        SELECT t.id, t.nombre, t.contenido, t.categoria_id, c.nombre AS categoria_nombre,
+               t.fecha_creacion, t.fecha_modificacion
+        FROM tips t LEFT JOIN categorias c ON c.id = t.categoria_id
+        WHERE t.id = :id
+    ');
     $stmt->execute([':id' => $id]);
     $tipExistente = $stmt->fetch();
 
@@ -230,13 +255,18 @@ function manejarPUT(): void
     if (json_last_error() !== JSON_ERROR_NONE) {
         responderJSON(400, false, null, 'El cuerpo de la petición no es JSON válido.');
     }
+    if (!is_array($datos)) {
+        responderJSON(400, false, null, 'Los datos enviados no son válidos.');
+    }
 
     // Validar que al menos un campo venga para actualizar
     $nombre    = isset($datos['nombre'])    ? trim($datos['nombre'])    : null;
     $contenido = isset($datos['contenido']) ? trim($datos['contenido']) : null;
+    $incluyeCategoria = array_key_exists('categoria_id', $datos);
+    $categoriaId = $incluyeCategoria ? obtenerCategoriaId($db, $datos) : null;
 
-    if ($nombre === null && $contenido === null) {
-        responderJSON(400, false, null, 'Debe enviar al menos "nombre" o "contenido" para actualizar.');
+    if ($nombre === null && $contenido === null && !$incluyeCategoria) {
+        responderJSON(400, false, null, 'Debe enviar al menos "nombre", "contenido" o "categoria_id" para actualizar.');
     }
 
     // Validar campos que se envían
@@ -258,6 +288,10 @@ function manejarPUT(): void
     if ($contenido !== null) {
         $campos[] = 'contenido = :contenido';
         $parametros[':contenido'] = $contenido;
+    }
+    if ($incluyeCategoria) {
+        $campos[] = 'categoria_id = :categoria_id';
+        $parametros[':categoria_id'] = $categoriaId;
     }
 
     // fecha_modificacion se actualiza automáticamente por ON UPDATE CURRENT_TIMESTAMP
@@ -344,4 +378,23 @@ function validarCamposTip($datos): array
     }
 
     return $errores;
+}
+
+function obtenerCategoriaId(PDO $db, array $datos): ?int
+{
+    $valor = $datos['categoria_id'] ?? null;
+    if ($valor === null || $valor === '') {
+        return null;
+    }
+
+    $categoriaId = filter_var($valor, FILTER_VALIDATE_INT);
+    if ($categoriaId === false || $categoriaId <= 0) {
+        responderJSON(400, false, null, 'El campo "categoria_id" debe ser un entero positivo o null.');
+    }
+    $stmt = $db->prepare('SELECT id FROM categorias WHERE id = :id');
+    $stmt->execute([':id' => $categoriaId]);
+    if (!$stmt->fetch()) {
+        responderJSON(400, false, null, 'La categoria seleccionada no existe.');
+    }
+    return $categoriaId;
 }

@@ -14,9 +14,13 @@ import {
   filtrarTips,
   filtrarResultadosAPI,
   buscarTipsAPI,
+  cargarCategorias,
+  crearCategoria,
   crearTip,
   editarTip,
   eliminarTip,
+  obtenerTodosLosTips,
+  filtrarPorCategoria,
   renderizarTabla,
 } from "./libreria.js";
 
@@ -30,6 +34,7 @@ let searchVersion = 0;
 // AbortController para cancelar peticiones API en vuelo
 let abortController = null;
 let tipsInicializado = false;
+let categorias = [];
 
 // ─── INICIALIZACIÓN ────
 
@@ -37,11 +42,14 @@ async function inicializarTips() {
   if (tipsInicializado) return;
   tipsInicializado = true;
 
-  // Cargar todos los tips en memoria (sin mostrarlos en el sidebar)
+  // Cargar el catalogo y sus categorias antes de activar los filtros.
   await cargarTips();
+  await cargarYRenderizarCategorias();
 
   // Configurar buscador (disponible en todas las plataformas)
   configurarBuscador();
+  configurarFiltroCategoria();
+  aplicarFiltrosLocales();
 
   // Configurar toggle de resultados para mobile
   configurarToggleResultadosMobile();
@@ -53,8 +61,8 @@ async function inicializarTips() {
 
   // Escuchar eventos personalizados de edición y eliminación
   document.addEventListener("activarEdicion", (e) => {
-    const { id, titulo, contenido } = e.detail;
-    abrirEditor(titulo, contenido, true, id);
+    const { id, titulo, contenido, categoriaId } = e.detail;
+    abrirEditor(titulo, contenido, true, id, categoriaId);
   });
 
   document.addEventListener("activarEliminacion", (e) => {
@@ -73,8 +81,8 @@ if (document.readyState === "loading") {
  */
 async function limpiarYRecargar() {
   document.getElementById("buscador").value = "";
-  document.getElementById("resultados-body").innerHTML = "";
   await cargarTips();
+  aplicarFiltrosLocales();
 }
 
 // ─── BUSCADOR ────
@@ -99,16 +107,15 @@ function configurarBuscador() {
       abortController = null;
     }
 
-    // Si el campo está vacío, limpiar sidebar y área principal
+    // Sin texto, conservar el listado filtrado por categoria.
     if (!texto.trim()) {
-      document.getElementById("resultados-body").innerHTML = "";
-      panelContenido.innerHTML = "";
+      aplicarFiltrosLocales();
       return;
     }
 
     // Filtrado local inmediato (rápido, sin esperar API)
     // FIX: filtrarTips() ahora solo busca en 'nombre'
-    const resultadosLocales = filtrarTips(texto);
+    const resultadosLocales = filtrarPorCategoria(filtrarTips(texto), obtenerCategoriaSeleccionada());
     // Solo renderizar si esta sigue siendo la búsqueda vigente
     if (searchVersion === miVersion) {
       renderizarTabla(resultadosLocales, texto);
@@ -127,7 +134,11 @@ function configurarBuscador() {
       abortController = new AbortController();
 
       try {
-        const resultadosAPI = await buscarTipsAPI(textoActual, abortController.signal);
+        const resultadosAPI = await buscarTipsAPI(
+          textoActual,
+          abortController.signal,
+          obtenerCategoriaSeleccionada()
+        );
 
         // Triple verificación: versión + texto actual coinciden
         if (searchVersion === miVersion && inputBuscador.value.trim() === textoActual) {
@@ -135,7 +146,10 @@ function configurarBuscador() {
           // tips cuyo NOMBRE coincida con la búsqueda. La API del servidor
           // puede devolver tips que coinciden solo en contenido (LIKE en
           // nombre+contenido), lo que causaba los falsos positivos.
-          const resultadosFiltrados = filtrarResultadosAPI(resultadosAPI, textoActual);
+          const resultadosFiltrados = filtrarPorCategoria(
+            filtrarResultadosAPI(resultadosAPI, textoActual),
+            obtenerCategoriaSeleccionada()
+          );
 
           // Solo renderizar si hay resultados filtrados; si no, mantener
           // los resultados locales que ya están en pantalla.
@@ -151,6 +165,35 @@ function configurarBuscador() {
       }
     }, 400);
   });
+}
+
+function configurarFiltroCategoria() {
+  document.getElementById("filtro-categoria").addEventListener("change", () => {
+    searchVersion++;
+    if (abortController) abortController.abort();
+    aplicarFiltrosLocales();
+  });
+}
+
+function obtenerCategoriaSeleccionada() {
+  return document.getElementById("filtro-categoria").value;
+}
+
+function aplicarFiltrosLocales() {
+  const texto = document.getElementById("buscador").value;
+  const tips = texto.trim() ? filtrarTips(texto) : obtenerTodosLosTips();
+  renderizarTabla(filtrarPorCategoria(tips, obtenerCategoriaSeleccionada()), texto);
+}
+
+async function cargarYRenderizarCategorias() {
+  categorias = await cargarCategorias();
+  const select = document.getElementById("filtro-categoria");
+  const seleccionada = select.value;
+  select.innerHTML = '<option value="">Todas las categorias</option>';
+  categorias.forEach((categoria) => {
+    select.add(new Option(categoria.nombre, categoria.id));
+  });
+  select.value = seleccionada;
 }
 
 // ─── TOGGLE RESULTADOS MOBILE ────
@@ -194,7 +237,8 @@ function abrirEditor(
   tituloInicial = "",
   contenidoInicial = "",
   esEdicion = false,
-  tipId = null
+  tipId = null,
+  categoriaIdInicial = null
 ) {
   const panelContenido = document.getElementById("contenido");
 
@@ -214,6 +258,7 @@ function abrirEditor(
         </label>
         <input type="text" id="editor-title" class="editor-title-input" 
                placeholder="Nombre del tip..." value="${tituloEscapado}">
+        <select id="editor-categoria" class="editor-category-select" aria-label="Categoria del tip"></select>
       </div>
       <div id="editor-workspace" style="flex: 1; display: flex; flex-direction: column;">
         <textarea id="editor-text" class="editor-textarea" 
@@ -235,6 +280,24 @@ function abrirEditor(
   const textarea = document.getElementById("editor-text");
   const previewArea = document.getElementById("editor-preview");
   const btnPreview = document.getElementById("btn-toggle-preview");
+  const selectCategoria = document.getElementById("editor-categoria");
+  renderizarCategoriasEditor(selectCategoria, categoriaIdInicial);
+
+  selectCategoria.addEventListener("change", async () => {
+    if (selectCategoria.value !== "__nueva__") return;
+    const nombre = prompt("Nombre de la nueva categoria:");
+    if (!nombre || !nombre.trim()) {
+      renderizarCategoriasEditor(selectCategoria, categoriaIdInicial);
+      return;
+    }
+    const categoria = await crearCategoria(nombre.trim());
+    if (categoria) {
+      await cargarYRenderizarCategorias();
+      renderizarCategoriasEditor(selectCategoria, categoria.id);
+    } else {
+      renderizarCategoriasEditor(selectCategoria, categoriaIdInicial);
+    }
+  });
 
   // Toggle vista previa / edición
   btnPreview.addEventListener("click", () => {
@@ -269,6 +332,7 @@ function abrirEditor(
     .addEventListener("click", async () => {
       const titulo = document.getElementById("editor-title").value.trim();
       const contenido = textarea.value.trim();
+      const categoriaId = selectCategoria.value || null;
 
       if (!titulo || !contenido) {
         alert("Completa título y contenido.");
@@ -277,7 +341,7 @@ function abrirEditor(
 
       if (esEdicion && tipId) {
         // ── EDITAR tip existente ──
-        const tipActualizado = await editarTip(tipId, titulo, contenido);
+        const tipActualizado = await editarTip(tipId, titulo, contenido, categoriaId);
         if (tipActualizado) {
           mostrarMensajeExito("¡Tip actualizado exitosamente!");
           // Limpiar búsqueda y recargar lista completa
@@ -285,7 +349,7 @@ function abrirEditor(
         }
       } else {
         // ── CREAR nuevo tip ──
-        const tipCreado = await crearTip(titulo, contenido);
+        const tipCreado = await crearTip(titulo, contenido, categoriaId);
         if (tipCreado) {
           mostrarMensajeExito("¡Tip creado exitosamente!");
           // Limpiar búsqueda y recargar lista completa
@@ -293,6 +357,15 @@ function abrirEditor(
         }
       }
     });
+}
+
+function renderizarCategoriasEditor(select, categoriaIdSeleccionada) {
+  select.innerHTML = '<option value="">Sin categoria</option>';
+  categorias.forEach((categoria) => {
+    select.add(new Option(categoria.nombre, categoria.id));
+  });
+  select.add(new Option('+ Crear nueva categoria...', '__nueva__'));
+  select.value = categoriaIdSeleccionada || "";
 }
 
 // ─── ELIMINACIÓN ────

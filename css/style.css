@@ -316,6 +316,17 @@ body {
   outline: none;
 }
 
+.category-select {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: #011627;
+  border: 1px solid #1d3b53;
+  border-radius: 6px;
+  color: #d6deeb;
+  outline: none;
+}
+
 /* Resultados (comportamiento desktop por defecto) */
 #resultados-container {
   flex: 1;
@@ -521,6 +532,17 @@ main#contenido pre code[class*="language-"] {
   border: 1px solid #1d3b53;
   color: #7fdbca;
   font-size: 1.5rem;
+  padding: 10px;
+  border-radius: 4px;
+  outline: none;
+}
+
+.editor-category-select {
+  width: 100%;
+  background: #01111d;
+  border: 1px solid #1d3b53;
+  color: #d6deeb;
+  font-size: 1rem;
   padding: 10px;
   border-radius: 4px;
   outline: none;

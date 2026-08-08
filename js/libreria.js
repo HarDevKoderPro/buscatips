@@ -11,6 +11,7 @@
 
 // URL base de la API (ajustar si cambia la ubicación)
 const API_URL = "api/tips.php";
+const CATEGORIAS_API_URL = "api/categorias.php";
 
 // Almacén local de tips cargados
 let tipsData = [];
@@ -85,12 +86,14 @@ export function obtenerTodosLosTips() {
  * @param {AbortSignal|null} signal - Señal para cancelar la petición
  * @returns {Array} Tips encontrados (ordenados alfabéticamente)
  */
-export async function buscarTipsAPI(texto, signal = null) {
+export async function buscarTipsAPI(texto, signal = null, categoriaId = "") {
   if (!texto.trim()) return [];
   try {
     const fetchOptions = signal ? { signal } : {};
+    const parametros = new URLSearchParams({ buscar: texto.trim() });
+    if (categoriaId) parametros.set("categoria_id", categoriaId);
     const response = await fetch(
-      `${API_URL}?buscar=${encodeURIComponent(texto.trim())}`,
+      `${API_URL}?${parametros.toString()}`,
       fetchOptions
     );
     const json = await response.json();
@@ -107,19 +110,48 @@ export async function buscarTipsAPI(texto, signal = null) {
   }
 }
 
+export async function cargarCategorias() {
+  try {
+    const response = await fetch(CATEGORIAS_API_URL);
+    const json = await response.json();
+    return json.success && json.data ? json.data : [];
+  } catch (error) {
+    console.error("Error al cargar categorias:", error);
+    return [];
+  }
+}
+
+export async function crearCategoria(nombre) {
+  try {
+    const response = await fetch(CATEGORIAS_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre }),
+    });
+    const json = await response.json();
+    if (json.success && json.data) return json.data;
+    alert("Error al crear categoria: " + (json.message || "Error desconocido"));
+  } catch (error) {
+    console.error("Error al crear categoria:", error);
+    alert("Error de conexion al crear la categoria.");
+  }
+  return null;
+}
+
 /**
  * Crear un nuevo tip
  * POST /api/tips.php
  * @param {string} nombre - Título del tip
  * @param {string} contenido - Contenido en Markdown
+ * @param {number|null} categoriaId - Categoría opcional del tip
  * @returns {Object|null} Tip creado o null si falló
  */
-export async function crearTip(nombre, contenido) {
+export async function crearTip(nombre, contenido, categoriaId = null) {
   try {
     const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre, contenido }),
+      body: JSON.stringify({ nombre, contenido, categoria_id: categoriaId }),
     });
     const json = await response.json();
 
@@ -143,14 +175,15 @@ export async function crearTip(nombre, contenido) {
  * @param {number} id - ID del tip
  * @param {string} nombre - Nuevo título
  * @param {string} contenido - Nuevo contenido en Markdown
+ * @param {number|null} categoriaId - Categoría opcional del tip
  * @returns {Object|null} Tip actualizado o null si falló
  */
-export async function editarTip(id, nombre, contenido) {
+export async function editarTip(id, nombre, contenido, categoriaId = null) {
   try {
     const response = await fetch(`${API_URL}?id=${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre, contenido }),
+      body: JSON.stringify({ nombre, contenido, categoria_id: categoriaId }),
     });
     const json = await response.json();
 
@@ -217,6 +250,11 @@ export function filtrarTips(textoBusqueda) {
     return palabras.every((p) => nombreNorm.includes(p));
   });
   return ordenarAlfabeticamente(filtrados);
+}
+
+export function filtrarPorCategoria(tips, categoriaId) {
+  if (!categoriaId) return ordenarAlfabeticamente(tips);
+  return ordenarAlfabeticamente(tips.filter((tip) => String(tip.categoria_id) === String(categoriaId)));
 }
 
 /**
@@ -350,6 +388,7 @@ export function renderizarTabla(tips, textoBusqueda = "") {
             id: tip.id,
             titulo: tip.nombre,
             contenido: tip.contenido,
+            categoriaId: tip.categoria_id,
           },
         });
         document.dispatchEvent(evento);

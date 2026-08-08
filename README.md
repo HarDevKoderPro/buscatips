@@ -40,6 +40,7 @@
 | Dificultad para encontrar información rápidamente | Búsqueda en tiempo real con resaltado de coincidencias |
 | Necesidad de consultar desde cualquier lugar | App web responsiva accesible desde cualquier dispositivo |
 | Edición compleja de contenido técnico | Editor Markdown integrado con vista previa |
+| Dificultad para organizar muchos tips | Categorías persistentes y filtro combinado por categoría y texto |
 
 ---
 
@@ -70,6 +71,11 @@
 ### 🔄 Ordenamiento Automático
 - Tips listados alfabéticamente (case-insensitive)
 - Carga automática de todos los tips al iniciar
+
+### 🗂️ Categorías
+- Cada tip puede pertenecer opcionalmente a una categoría
+- Filtro por categoría, combinado con la búsqueda textual
+- Creación de categorías directamente desde el editor de tips
 
 ---
 
@@ -199,16 +205,30 @@ CREATE DATABASE IF NOT EXISTS tucultur_buscatips_db
 
 USE tucultur_buscatips_db;
 
+-- Crear las categorías antes de los tips
+CREATE TABLE IF NOT EXISTS categorias (
+  id                INT(11)       NOT NULL AUTO_INCREMENT,
+  nombre            VARCHAR(100)  NOT NULL COLLATE utf8mb4_unicode_ci,
+  fecha_creacion    DATETIME      DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_categorias_nombre (nombre)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Crear la tabla de tips
 CREATE TABLE IF NOT EXISTS tips (
   id                INT(11)       NOT NULL AUTO_INCREMENT,
   nombre            VARCHAR(255)  NOT NULL COLLATE utf8mb4_unicode_ci,
   contenido         TEXT          NOT NULL COLLATE utf8mb4_unicode_ci,
+  categoria_id      INT(11)       NULL,
   fecha_creacion    DATETIME      DEFAULT CURRENT_TIMESTAMP,
   fecha_modificacion DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  CONSTRAINT fk_tips_categoria FOREIGN KEY (categoria_id)
+    REFERENCES categorias(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
+
+Para una instalación existente, ejecuta una sola vez `migrations/001_add_categorias.sql` antes de desplegar el código.
 
 ### 3. Configurar Credenciales
 
@@ -259,14 +279,20 @@ http://localhost/BuscaTips/
 ### Crear un Tip
 1. Haz clic en **"+ Crear Tip"** (solo disponible en desktop)
 2. Escribe el **nombre** del tip (título)
-3. Escribe el **contenido** en formato Markdown
-4. Opcionalmente, haz clic en **"Vista Previa"** para ver cómo se renderizará
-5. Haz clic en **"Guardar .md"** para guardarlo en la base de datos
+3. Selecciona una categoría existente, déjalo como **"Sin categoría"** o selecciona **"+ Crear nueva categoría..."**
+4. Escribe el **contenido** en formato Markdown
+5. Opcionalmente, haz clic en **"Vista Previa"** para ver cómo se renderizará
+6. Haz clic en **"Crear Tip"** para guardarlo en la base de datos
 
 ### Buscar Tips
 1. Escribe en el campo **"Buscar tips..."** del panel lateral
 2. Los resultados aparecen en tiempo real con las coincidencias resaltadas
 3. Haz clic en un resultado para ver el contenido completo en el panel principal
+
+### Filtrar por Categoría
+1. Usa el selector **"Todas las categorías"** debajo del buscador
+2. Elige una categoría para listar todos sus tips
+3. Escribe texto en el buscador si quieres reducir el resultado dentro de esa categoría
 
 ### Editar un Tip
 1. Abre el tip que deseas editar
@@ -305,6 +331,8 @@ Todas las respuestas siguen el formato:
 | `POST` | `/api/tips.php` | Crear un nuevo tip |
 | `PUT` | `/api/tips.php?id={id}` | Editar un tip existente |
 | `DELETE` | `/api/tips.php?id={id}` | Eliminar un tip |
+| `GET` | `/api/categorias.php` | Listar categorías |
+| `POST` | `/api/categorias.php` | Crear una categoría |
 
 ---
 

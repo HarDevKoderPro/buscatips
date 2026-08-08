@@ -28,6 +28,7 @@ BuscaTips/
 |- .github/workflows/deploy.yml
 |- AGENTS.md
 |- api/config.php
+|- api/categorias.php
 |- api/tips.php
 |- api/test_conexion.php
 |- css/style.css
@@ -37,6 +38,7 @@ BuscaTips/
 |- js/app.js
 |- js/libreria.js
 |- js/script.js
+|- migrations/001_add_categorias.sql
 |- README.md
 ```
 
@@ -52,7 +54,7 @@ Flujo de datos general:
 4. `js/libreria.js` consume `api/tips.php` via `fetch`
 5. `api/tips.php` enruta por metodo HTTP y usa `api/config.php`
 6. `api/config.php` abre conexion PDO y responde JSON estandarizado
-7. MySQL persiste la tabla `tips`
+7. MySQL persiste las tablas `tips` y `categorias`
 8. Frontend renderiza Markdown con `marked` desde CDN
 
 ## 4) Frontend (detalle operativo)
@@ -66,6 +68,7 @@ Flujo de datos general:
 - Fondo visual global oscuro minimalista
 - Layout Tips conserva `#sidebar` y `#contenido`
 - Buscador: input `#buscador`
+- Filtro de categoría: select `#filtro-categoria`; combina categoría y texto con criterio AND
 - Tabla de resultados: `#resultados-body`
 - Boton crear: `#btn-crear-tip` (desktop)
 - Toggle mobile de resultados: `#btn-toggle-resultados`
@@ -97,6 +100,7 @@ Responsabilidades principales:
   - `AbortController` para cancelar requests obsoletos
   - control de version de busqueda (`searchVersion`)
 - Abrir editor unificado para crear/editar
+- Crear categorías desde el selector del editor mediante `+ Crear nueva categoria...`
 - Manejar eliminacion con confirmacion
 - Mostrar mensajes temporales de exito
 
@@ -116,7 +120,9 @@ Responsabilidades principales:
   - `crearTip`
   - `editarTip`
   - `eliminarTip`
+- Categorías API: `cargarCategorias`, `crearCategoria`
 - Filtrado local por nombre (normalizado sin acentos)
+- Filtrado local por categoría: `filtrarPorCategoria`
 - Re-filtrado de resultados API por nombre: `filtrarResultadosAPI`
 - Render tabla resultados: `renderizarTabla`
 - Mostrar contenido renderizado en `#contenido`
@@ -125,6 +131,7 @@ Comportamiento clave:
 
 - El sidebar muestra coincidencias por `nombre`
 - La API puede buscar por `nombre` o `contenido`; por eso el frontend refiltra para evitar falsos positivos visibles
+- Con el buscador vacío, el sidebar lista todos los tips; el filtro de categoría reduce ese catálogo
 
 ### 4.5 `css/style.css`
 
@@ -165,6 +172,11 @@ Endpoints:
 - `PUT /api/tips.php?id={id}` -> editar
 - `DELETE /api/tips.php?id={id}` -> eliminar
 
+Categorias:
+
+- `GET /api/categorias.php` -> listar categorías
+- `POST /api/categorias.php` -> crear categoría (`nombre` requerido, max 100)
+
 Formato de respuesta:
 
 ```json
@@ -193,10 +205,19 @@ Tabla esperada: `tips`
 - `id` INT auto_increment PK
 - `nombre` VARCHAR(255)
 - `contenido` TEXT
+- `categoria_id` INT nullable FK a `categorias.id` (`ON DELETE SET NULL`)
 - `fecha_creacion` DATETIME
 - `fecha_modificacion` DATETIME (con update automatico)
 
 Charset/collation esperados: `utf8mb4` / `utf8mb4_unicode_ci`.
+
+Tabla `categorias`:
+
+- `id` INT auto_increment PK
+- `nombre` VARCHAR(100) unico
+- `fecha_creacion` DATETIME
+
+Migracion para instalaciones existentes: ejecutar una sola vez `migrations/001_add_categorias.sql` antes de desplegar la funcionalidad.
 
 ## 7) Despliegue
 
@@ -226,6 +247,7 @@ Destino actual configurado: `digitalbrain.girabienes.com/`
   - `libreria.js`: datos/API/render de lista
 - Si cambia el criterio de busqueda en backend, reflejarlo tambien en el refiltrado frontend.
 - Si se agregan nuevos endpoints, documentarlos en `README.md` y en este archivo.
+- Las categorías son únicas por nombre y cada tip tiene como máximo una categoría opcional.
 - Si se agregan archivos o carpetas, actualizar snapshot de estructura.
 
 ## 10) Protocolo obligatorio de actualizacion de AGENTS.md
@@ -255,3 +277,4 @@ Checklist minimo por cambio:
 - 2026-08-07: Layout desktop de Tips: el panel lateral pasa a ancho responsivo limitado (`400px` a `520px`) para dar mas espacio a titulos y acciones de cada tip; el visor usa el espacio restante.
 - 2026-08-07: Acciones de Tips: los iconos de editar y eliminar quedan visibles permanentemente en cada resultado del panel lateral.
 - 2026-08-07: Interfaz Tips: se centro el titulo `PIA Tips` del panel lateral.
+- 2026-08-08: Categorías de Tips: se agregan migración SQL, API de categorías, asignación opcional por tip, creación desde el editor y filtrado combinado por categoría y texto.
