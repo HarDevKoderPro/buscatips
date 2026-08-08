@@ -234,6 +234,18 @@ body {
   border: 1px solid #7fdbca;
 }
 
+.btn-secondary {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #5f7e97;
+  border-radius: 4px;
+  background: transparent;
+  color: #b6c3d8;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
 .btn-success {
   background: #22a6b3;
   color: #fff;
@@ -574,6 +586,46 @@ main#contenido pre code[class*="language-"] {
   padding: 10px;
   border-radius: 4px;
   outline: none;
+}
+
+.categorias-manager {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.categorias-manager h2 {
+  color: #7fdbca;
+  margin-bottom: 18px;
+}
+
+.categoria-manager-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #1d3b53;
+}
+
+.categoria-manager-nombre {
+  flex: 1;
+  min-width: 0;
+}
+
+.categoria-manager-total {
+  color: #5f7e97;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.categoria-manager-actions {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.categoria-manager-actions button {
+  width: auto;
+  margin: 0;
+  padding: 7px 10px;
 }
 
 .editor-textarea {

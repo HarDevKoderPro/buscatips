@@ -16,13 +16,15 @@ import {
   buscarTipsAPI,
   cargarCategorias,
   crearCategoria,
+  editarCategoria,
+  eliminarCategoria,
   crearTip,
   editarTip,
   eliminarTip,
   obtenerTodosLosTips,
   filtrarPorCategoria,
   renderizarTabla,
-} from "./libreria.js?v=20260808-6";
+} from "./libreria.js?v=20260808-7";
 
 // Detección de mobile
 const esMobile = () => window.matchMedia("(max-width: 768px)").matches;
@@ -59,6 +61,7 @@ async function inicializarTips() {
   // Solo en desktop: editor y botón crear
   if (!esMobile()) {
     configurarBotonCrear();
+    configurarBotonGestionarCategorias();
   }
 
   // Escuchar eventos personalizados de edición y eliminación
@@ -257,6 +260,65 @@ function configurarBotonCrear() {
   btnCrear.addEventListener("click", () => {
     // Abrir editor vacío para nuevo tip
     abrirEditor("", "", false, null);
+  });
+}
+
+function configurarBotonGestionarCategorias() {
+  const boton = document.getElementById("btn-gestionar-categorias");
+  if (!boton) return;
+  boton.addEventListener("click", mostrarGestorCategorias);
+}
+
+function mostrarGestorCategorias() {
+  const panelContenido = document.getElementById("contenido");
+  panelContenido.innerHTML = `
+    <div class="categorias-manager">
+      <h2>Gestionar categorias</h2>
+      <div id="categorias-manager-lista"></div>
+    </div>
+  `;
+  const lista = document.getElementById("categorias-manager-lista");
+
+  categorias.forEach((categoria) => {
+    const fila = document.createElement("div");
+    fila.className = "categoria-manager-row";
+    fila.innerHTML = `
+      <span class="categoria-manager-nombre"></span>
+      <span class="categoria-manager-total">${categoria.total_tips} tip(s)</span>
+      <span class="categoria-manager-actions">
+        <button class="btn-secondary" type="button">Editar</button>
+        <button class="btn-danger" type="button">Eliminar</button>
+      </span>
+    `;
+    fila.querySelector(".categoria-manager-nombre").textContent = categoria.nombre;
+    const [btnEditar, btnEliminar] = fila.querySelectorAll("button");
+
+    btnEditar.addEventListener("click", async () => {
+      const nombre = prompt("Nuevo nombre de la categoria:", categoria.nombre);
+      if (!nombre || !nombre.trim() || nombre.trim() === categoria.nombre) return;
+      if (await editarCategoria(categoria.id, nombre.trim())) {
+        await cargarTips();
+        await cargarYRenderizarCategorias();
+        aplicarFiltrosLocales();
+        mostrarGestorCategorias();
+      }
+    });
+
+    btnEliminar.addEventListener("click", async () => {
+      if (Number(categoria.total_tips) > 0) {
+        alert(`No puedes eliminar "${categoria.nombre}" porque tiene ${categoria.total_tips} tip(s) asignado(s). Reasignalos antes de eliminarla.`);
+        return;
+      }
+      if (!confirm(`¿Eliminar la categoria "${categoria.nombre}"?`)) return;
+      if (await eliminarCategoria(categoria.id)) {
+        await cargarTips();
+        await cargarYRenderizarCategorias();
+        aplicarFiltrosLocales();
+        mostrarGestorCategorias();
+      }
+    });
+
+    lista.appendChild(fila);
   });
 }
 

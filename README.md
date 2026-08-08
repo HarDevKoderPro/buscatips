@@ -76,6 +76,7 @@
 - Cada tip debe pertenecer a una categoría
 - Filtro por categoría, combinado con la búsqueda textual
 - Creación de categorías directamente desde el editor de tips
+- Gestión de categorías para renombrarlas o eliminar las que no tengan tips asignados
 
 ---
 
@@ -294,6 +295,11 @@ http://localhost/BuscaTips/
 2. Elige una categoría para listar todos sus tips
 3. Escribe texto en el buscador si quieres reducir el resultado dentro de esa categoría
 
+### Gestionar Categorías
+1. Haz clic en **"Gestionar categorias"** (solo disponible en desktop)
+2. Usa **Editar** para corregir el nombre de una categoría; los tips asociados conservan su asignación
+3. Usa **Eliminar** únicamente en categorías sin tips asignados
+
 ### Editar un Tip
 1. Abre el tip que deseas editar
 2. Haz clic en **"✏️ Editar este Tip"**
@@ -333,6 +339,8 @@ Todas las respuestas siguen el formato:
 | `DELETE` | `/api/tips.php?id={id}` | Eliminar un tip |
 | `GET` | `/api/categorias.php` | Listar categorías |
 | `POST` | `/api/categorias.php` | Crear una categoría |
+| `PUT` | `/api/categorias.php?id={id}` | Renombrar una categoría |
+| `DELETE` | `/api/categorias.php?id={id}` | Eliminar una categoría vacía |
 
 ---
 

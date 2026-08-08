@@ -104,6 +104,7 @@ Responsabilidades principales:
   - control de version de busqueda (`searchVersion`)
 - Abrir editor unificado para crear/editar
 - Crear categorías desde el selector del editor mediante `+ Crear nueva categoria...`; la categoría es obligatoria para guardar
+- Gestionar categorías desde el botón `Gestionar categorias`: renombrar cualquiera y eliminar solo las que no tengan tips asignados
 - Manejar eliminacion con confirmacion
 - Mostrar mensajes temporales de exito
 - Mantener el estado de colapso de resultados por categoría durante la sesión
@@ -124,7 +125,7 @@ Responsabilidades principales:
   - `crearTip`
   - `editarTip`
   - `eliminarTip`
-- Categorías API: `cargarCategorias`, `crearCategoria`
+- Categorías API: `cargarCategorias`, `crearCategoria`, `editarCategoria`, `eliminarCategoria`
 - Filtrado local por nombre (normalizado sin acentos)
 - Filtrado local por categoría: `filtrarPorCategoria`
 - Re-filtrado de resultados API por nombre: `filtrarResultadosAPI`
@@ -181,6 +182,8 @@ Categorias:
 
 - `GET /api/categorias.php` -> listar categorías
 - `POST /api/categorias.php` -> crear categoría (`nombre` requerido, max 100)
+- `PUT /api/categorias.php?id={id}` -> renombrar categoría
+- `DELETE /api/categorias.php?id={id}` -> eliminar categoría sin tips asignados
 
 Formato de respuesta:
 
@@ -289,3 +292,4 @@ Checklist minimo por cambio:
 - 2026-08-08: Resultados por categoría: se agregan contadores en el filtro y un control adyacente para expandir o colapsar la lista por categoría; se completa su inclusión en HTML y JavaScript tras detectar un despliegue incompleto.
 - 2026-08-08: Búsqueda de Tips: se elimina el icono decorativo de lupa, se aclara el placeholder por nombre y se expande visualmente la lista al escribir una búsqueda.
 - 2026-08-08: Categorías obligatorias: se bloquea el guardado de tips sin categoría en frontend y API, y se muestra un check con tooltip en los tips ya clasificados.
+- 2026-08-08: Gestión de categorías: se permite renombrar categorías y eliminar únicamente las que no tienen tips asignados.

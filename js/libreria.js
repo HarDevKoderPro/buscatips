@@ -138,6 +138,36 @@ export async function crearCategoria(nombre) {
   return null;
 }
 
+export async function editarCategoria(id, nombre) {
+  try {
+    const response = await fetch(`${CATEGORIAS_API_URL}?id=${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre }),
+    });
+    const json = await response.json();
+    if (json.success && json.data) return json.data;
+    alert("Error al actualizar categoria: " + (json.message || "Error desconocido"));
+  } catch (error) {
+    console.error("Error al actualizar categoria:", error);
+    alert("Error de conexion al actualizar la categoria.");
+  }
+  return null;
+}
+
+export async function eliminarCategoria(id) {
+  try {
+    const response = await fetch(`${CATEGORIAS_API_URL}?id=${id}`, { method: "DELETE" });
+    const json = await response.json();
+    if (json.success) return true;
+    alert(json.message || "No se pudo eliminar la categoria.");
+  } catch (error) {
+    console.error("Error al eliminar categoria:", error);
+    alert("Error de conexion al eliminar la categoria.");
+  }
+  return false;
+}
+
 /**
  * Crear un nuevo tip
  * POST /api/tips.php
