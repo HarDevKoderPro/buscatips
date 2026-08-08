@@ -528,6 +528,36 @@ main#contenido pre code[class*="language-"] {
   tab-size: 4 !important;
 }
 
+#contenido pre .hljs-keyword,
+#contenido pre .hljs-selector-tag,
+#contenido pre .hljs-literal {
+  color: #c792ea !important;
+}
+
+#contenido pre .hljs-string,
+#contenido pre .hljs-attr,
+#contenido pre .hljs-template-variable {
+  color: #c3e88d !important;
+}
+
+#contenido pre .hljs-number,
+#contenido pre .hljs-built_in,
+#contenido pre .hljs-title.function_ {
+  color: #82aaff !important;
+}
+
+#contenido pre .hljs-comment,
+#contenido pre .hljs-quote {
+  color: #637777 !important;
+  font-style: italic !important;
+}
+
+#contenido pre .hljs-title,
+#contenido pre .hljs-section,
+#contenido pre .hljs-function {
+  color: #82aaff !important;
+}
+
 /* Código en línea */
 #contenido code:not(pre code) {
   background: #1d3b53 !important;

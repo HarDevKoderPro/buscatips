@@ -403,7 +403,14 @@ function abrirEditor(
       textarea.classList.remove("hidden");
       btnPreview.textContent = "Vista Previa";
     } else {
-      previewArea.innerHTML = marked.parse(textarea.value);
+      previewArea.innerHTML = marked.parse(textarea.value, {
+        highlight(codigo, lenguaje) {
+          if (lenguaje && window.hljs?.getLanguage(lenguaje)) {
+            return window.hljs.highlight(codigo, { language: lenguaje }).value;
+          }
+          return window.hljs?.highlightAuto(codigo).value || codigo;
+        },
+      });
       textarea.classList.add("hidden");
       previewArea.classList.remove("hidden");
       btnPreview.textContent = "Editar";

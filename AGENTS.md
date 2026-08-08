@@ -55,7 +55,7 @@ Flujo de datos general:
 5. `api/tips.php` enruta por metodo HTTP y usa `api/config.php`
 6. `api/config.php` abre conexion PDO y responde JSON estandarizado
 7. MySQL persiste las tablas `tips` y `categorias`
-8. Frontend renderiza Markdown con `marked` desde CDN
+8. Frontend renderiza Markdown con `marked` y resalta bloques de código con `highlight.js` desde CDN
 
 ## 4) Frontend (detalle operativo)
 
@@ -73,7 +73,7 @@ Flujo de datos general:
 - Tabla de resultados: `#resultados-body`
 - Boton crear: `#btn-crear-tip` (desktop)
 - Toggle mobile de resultados: `#btn-toggle-resultados`
-- Carga `marked.min.js` por CDN y `js/app.js` como modulo principal
+- Carga `marked.min.js`, `highlight.js` por CDN y `js/app.js` como modulo principal
 
 ### 4.2 `js/app.js` (shell PIA + router)
 
@@ -131,6 +131,7 @@ Responsabilidades principales:
 - Re-filtrado de resultados API por nombre: `filtrarResultadosAPI`
 - Render tabla resultados: `renderizarTabla`
 - Mostrar contenido renderizado en `#contenido`
+- Renderizar bloques Markdown con resaltado de sintaxis cuando se indica el lenguaje
 
 Comportamiento clave:
 
@@ -293,3 +294,4 @@ Checklist minimo por cambio:
 - 2026-08-08: Búsqueda de Tips: se elimina el icono decorativo de lupa, se aclara el placeholder por nombre y se expande visualmente la lista al escribir una búsqueda.
 - 2026-08-08: Categorías obligatorias: se bloquea el guardado de tips sin categoría en frontend y API, y se muestra un check con tooltip en los tips ya clasificados.
 - 2026-08-08: Gestión de categorías: se permite renombrar categorías y eliminar únicamente las que no tienen tips asignados; los contadores se concentran en ese panel para simplificar el selector.
+- 2026-08-08: Bloques de código: se integra Highlight.js para resaltar sintaxis en Markdown con estilos oscuros compatibles con PIA Tips.

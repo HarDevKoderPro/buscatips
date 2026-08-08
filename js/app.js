@@ -15,7 +15,7 @@ let tipsModuleLoaded = false;
 async function asegurarModuloTips() {
   if (tipsModuleLoaded) return;
   try {
-    await import("./script.js?v=20260808-8");
+    await import("./script.js?v=20260808-9");
     tipsModuleLoaded = true;
   } catch (error) {
     console.error("No se pudo cargar el modulo Tips:", error);

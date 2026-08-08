@@ -62,6 +62,7 @@
 - Escritura en Markdown con preview en tiempo real
 - Soporte para bloques de código, listas, encabezados, negritas, etc.
 - Renderizado con [Marked.js](https://marked.js.org/)
+- Resaltado de sintaxis para bloques de código mediante [Highlight.js](https://highlightjs.org/)
 
 ### 📱 Diseño Responsivo
 - **Desktop**: layout de dos paneles (sidebar + visor principal)

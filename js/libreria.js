@@ -367,8 +367,7 @@ function mostrarContenido(tip) {
   contenidoOriginalMD = tip.contenido;
   nombreTipActual = tip.nombre;
 
-  // Renderizamos el Markdown a HTML
-  const htmlContenido = marked.parse(tip.contenido || "");
+  const htmlContenido = renderizarMarkdown(tip.contenido || "");
 
   // Área principal solo muestra el contenido renderizado (sin botones de acción)
   contenedor.innerHTML = `
@@ -376,6 +375,17 @@ function mostrarContenido(tip) {
       ${htmlContenido}
     </div>
   `;
+}
+
+function renderizarMarkdown(contenido) {
+  return marked.parse(contenido, {
+    highlight(codigo, lenguaje) {
+      if (lenguaje && window.hljs?.getLanguage(lenguaje)) {
+        return window.hljs.highlight(codigo, { language: lenguaje }).value;
+      }
+      return window.hljs?.highlightAuto(codigo).value || codigo;
+    },
+  });
 }
 
 /**
