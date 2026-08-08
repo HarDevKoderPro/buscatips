@@ -73,7 +73,7 @@ Flujo de datos general:
 - Tabla de resultados: `#resultados-body`
 - Boton crear: `#btn-crear-tip` (desktop)
 - Toggle mobile de resultados: `#btn-toggle-resultados`
-- Carga `marked.min.js`, `highlight.js` por CDN y `js/app.js` como modulo principal
+- Carga `marked.min.js` y la distribución de navegador de `highlight.js` por CDN, además de `js/app.js` como modulo principal
 
 ### 4.2 `js/app.js` (shell PIA + router)
 
@@ -296,3 +296,4 @@ Checklist minimo por cambio:
 - 2026-08-08: Gestión de categorías: se permite renombrar categorías y eliminar únicamente las que no tienen tips asignados; los contadores se concentran en ese panel para simplificar el selector.
 - 2026-08-08: Bloques de código: se integra Highlight.js para resaltar sintaxis en Markdown con estilos oscuros compatibles con PIA Tips.
 - 2026-08-08: Corrección de resaltado: Highlight.js procesa los bloques HTML resultantes de Marked para compatibilidad con su versión actual de CDN.
+- 2026-08-08: Corrección de CDN: se reemplaza la distribución CommonJS de Highlight.js por su build de navegador, que expone `window.hljs` para el resaltado.
