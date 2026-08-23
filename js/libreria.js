@@ -10,13 +10,8 @@
 // ============================================================
 
 // URL base de la API (ajustar si cambia la ubicación)
-
-//const API_URL = "api/tips.php";
-//const CATEGORIAS_API_URL = "api/categorias.php";
-
-const API_URL = "https://digitalbrain.girabienes.com/api/tips.php";
-const CATEGORIAS_API_URL =
-  "https://digitalbrain.girabienes.com/api/categorias.php";
+const API_URL = "api/tips.php";
+const CATEGORIAS_API_URL = "api/categorias.php";
 
 // Almacén local de tips cargados
 let tipsData = [];
