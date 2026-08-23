@@ -299,3 +299,5 @@ Checklist minimo por cambio:
 - 2026-08-08: Corrección de resaltado: Highlight.js procesa los bloques HTML resultantes de Marked para compatibilidad con su versión actual de CDN.
 - 2026-08-08: Corrección de CDN: se reemplaza la distribución CommonJS de Highlight.js por su build de navegador, que expone `window.hljs` para el resaltado.
 - 2026-08-08: Selección de Tips: el tip abierto se diferencia visualmente en la lista mediante un efecto glass translúcido.
+- 2026-08-22: Se revierte la prueba temporal de Netlify contra la API de Colombia Hosting; `js/libreria.js` vuelve a usar las rutas relativas `api/tips.php` y `api/categorias.php` para preparar el despliegue autónomo en VPS.
+
