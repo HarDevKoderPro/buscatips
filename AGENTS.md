@@ -31,6 +31,9 @@ BuscaTips/
 |- api/categorias.php
 |- api/tips.php
 |- api/test_conexion.php
+|- Dockerfile
+|- compose.yml
+|- .env.example
 |- css/style.css
 |- fonts/openSans.ttf
 |- images/code.ico
@@ -244,9 +247,11 @@ Destino actual configurado: `digitalbrain.girabienes.com/`
 
 Recursos estáticos: `index.html`, `js/app.js` y `js/script.js` comparten un parámetro `v=` en sus importaciones de CSS/JS. Incrementarlo en los tres archivos cuando un cambio frontend deba invalidar la caché del navegador.
 
+Preparación VPS: la rama `infra/vps-pia` añade una definición Docker con PHP 8.3/Apache y MariaDB 11.4. Las credenciales se suministran mediante un archivo `.env` no versionado; `.env.example` documenta las variables requeridas. La aplicación se conecta al servicio interno `db` y solo el contenedor PHP se conectará posteriormente a la red externa `proxy` de Caddy.
+
 ## 8) Riesgos y deuda tecnica detectada
 
-1. Seguridad: hay credenciales de BD hardcodeadas en `api/config.php`. Deben migrarse a variables de entorno y rotarse si fueron expuestas.
+1. Seguridad: las credenciales históricas de BD estuvieron expuestas en commits anteriores y deben rotarse en Colombia Hosting. La rama `infra/vps-pia` ya evita incluirlas en `api/config.php` y define el uso de variables de entorno para VPS.
 2. CORS abierto (`*`) en API; revisar si debe restringirse en produccion.
 3. Desfase documental entre `README.md` y archivos reales existentes.
 4. No hay suite automatizada de tests en el repo.
@@ -300,4 +305,4 @@ Checklist minimo por cambio:
 - 2026-08-08: Corrección de CDN: se reemplaza la distribución CommonJS de Highlight.js por su build de navegador, que expone `window.hljs` para el resaltado.
 - 2026-08-08: Selección de Tips: el tip abierto se diferencia visualmente en la lista mediante un efecto glass translúcido.
 - 2026-08-22: Se revierte la prueba temporal de Netlify contra la API de Colombia Hosting; `js/libreria.js` vuelve a usar las rutas relativas `api/tips.php` y `api/categorias.php` para preparar el despliegue autónomo en VPS.
-
+- 2026-08-23: Preparación de PIA para VPS en la rama `infra/vps-pia`: se agrega Docker Compose con PHP/Apache y MariaDB aislada, plantilla de variables de entorno y configuración PHP sin credenciales hardcodeadas.

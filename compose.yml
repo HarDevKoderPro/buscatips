@@ -1,0 +1,45 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - pia_internal
+      - proxy
+
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASS}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASS}
+    volumes:
+      - pia_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - pia_internal
+
+networks:
+  pia_internal:
+    internal: true
+  proxy:
+    external: true
+    name: proxy
+
+volumes:
+  pia_db_data:
