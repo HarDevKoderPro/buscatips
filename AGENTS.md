@@ -41,6 +41,7 @@ BuscaTips/
 |- js/app.js
 |- js/libreria.js
 |- js/script.js
+|- migrations/000_create_schema.sql
 |- migrations/001_add_categorias.sql
 |- README.md
 ```
@@ -230,7 +231,10 @@ Tabla `categorias`:
 - `nombre` VARCHAR(100) unico
 - `fecha_creacion` DATETIME
 
-Migracion para instalaciones existentes: ejecutar una sola vez `migrations/001_add_categorias.sql` antes de desplegar la funcionalidad.
+Migraciones:
+
+- Instalaciones nuevas: ejecutar `migrations/000_create_schema.sql`.
+- Instalaciones existentes previas a categorías: ejecutar una sola vez `migrations/001_add_categorias.sql`.
 
 ## 7) Despliegue
 
@@ -306,3 +310,4 @@ Checklist minimo por cambio:
 - 2026-08-08: Selección de Tips: el tip abierto se diferencia visualmente en la lista mediante un efecto glass translúcido.
 - 2026-08-22: Se revierte la prueba temporal de Netlify contra la API de Colombia Hosting; `js/libreria.js` vuelve a usar las rutas relativas `api/tips.php` y `api/categorias.php` para preparar el despliegue autónomo en VPS.
 - 2026-08-23: Preparación de PIA para VPS en la rama `infra/vps-pia`: se agrega Docker Compose con PHP/Apache y MariaDB aislada, plantilla de variables de entorno y configuración PHP sin credenciales hardcodeadas.
+- 2026-08-23: Se agrega `migrations/000_create_schema.sql` para inicializar desde cero las tablas `categorias` y `tips` en despliegues Docker del VPS, con índices para categoría y fecha de modificación.
