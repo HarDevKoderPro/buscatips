@@ -506,6 +506,17 @@ curl -X DELETE "http://localhost/BuscaTips/api/tips.php?id=5"
 
 ## 🌐 Despliegue
 
+### VPS Actual
+
+PIA está operativo en `https://smarteksoft.com` sobre un VPS Contabo con Ubuntu 24.04. La instalación actual usa Docker Compose:
+
+- Caddy actúa como proxy inverso y administra certificados HTTPS de Let's Encrypt.
+- El servicio `app` usa PHP 8.3 con Apache y se comunica con MariaDB por la red Docker interna.
+- Las credenciales se configuran en un archivo `.env` no versionado. Usa `.env.example` como plantilla; nunca subas el archivo real a Git.
+- Para instalaciones nuevas, ejecuta `migrations/000_create_schema.sql` dentro de la base MariaDB antes de usar la aplicación.
+
+La rama de infraestructura activa es `infra/vps-pia`. El workflow FTP de la siguiente sección corresponde al despliegue histórico en Colombia Hosting y no debe usarse para actualizar el VPS.
+
 ### Despliegue Automático con GitHub Actions
 
 El proyecto incluye un workflow de GitHub Actions (`.github/workflows/deploy.yml`) que despliega automáticamente al hacer `push` a la rama `main` mediante FTP.

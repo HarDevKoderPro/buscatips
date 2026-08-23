@@ -251,7 +251,17 @@ Destino actual configurado: `digitalbrain.girabienes.com/`
 
 Recursos estáticos: `index.html`, `js/app.js` y `js/script.js` comparten un parámetro `v=` en sus importaciones de CSS/JS. Incrementarlo en los tres archivos cuando un cambio frontend deba invalidar la caché del navegador.
 
-Preparación VPS: la rama `infra/vps-pia` añade una definición Docker con PHP 8.3/Apache y MariaDB 11.4. Las credenciales se suministran mediante un archivo `.env` no versionado; `.env.example` documenta las variables requeridas. La aplicación se conecta al servicio interno `db` y solo el contenedor PHP se conectará posteriormente a la red externa `proxy` de Caddy.
+VPS activo:
+
+- Dominio personal: `https://smarteksoft.com` con DNS en Cloudflare y HTTPS automático de Let's Encrypt gestionado por Caddy.
+- Servidor: Contabo Cloud VPS con Ubuntu 24.04, Docker, UFW, Fail2ban y acceso SSH por llave para el usuario `deploy`.
+- Proxy: Caddy es el único servicio público en los puertos 80/443 y se conecta a la red Docker externa `proxy`.
+- PIA: la rama `infra/vps-pia` define PHP 8.3/Apache y MariaDB 11.4. El contenedor PHP está conectado a `proxy`; MariaDB permanece en la red interna `pia_internal`.
+- Secretos: las credenciales se suministran mediante `/opt/apps/pia/.env`, no versionado y con permisos `600`; `.env.example` documenta las variables requeridas.
+- Datos: se restauraron 7 categorías y 64 tips desde un respaldo SQL de Colombia Hosting. La instalación nueva usa `migrations/000_create_schema.sql`.
+- Ruta temporal por IP: `/pia/`. El acceso principal vigente es el dominio raíz `https://smarteksoft.com`.
+- Recuperación: existen snapshots de Contabo `Base-segura-docker-caddy` y `Pia-restaurado-y-verificado`. Auto Backup de Contabo no fue contratado; quedó pendiente automatizar y copiar fuera del VPS los backups SQL de PIA.
+- Despliegue actual: los cambios para VPS se actualizan manualmente con `git pull` y `docker compose up -d --build` en `/opt/apps/pia`. Queda pendiente sustituir el workflow FTP histórico por despliegue automático seguro mediante GitHub Actions y SSH, después de definir la estrategia final de ramas.
 
 ## 8) Riesgos y deuda tecnica detectada
 
@@ -259,6 +269,8 @@ Preparación VPS: la rama `infra/vps-pia` añade una definición Docker con PHP 
 2. CORS abierto (`*`) en API; revisar si debe restringirse en produccion.
 3. Desfase documental entre `README.md` y archivos reales existentes.
 4. No hay suite automatizada de tests en el repo.
+5. Operación VPS: falta finalizar `backup-db.sh`, programar ejecución diaria y copiar los respaldos fuera del VPS antes de alojar datos de clientes.
+6. Despliegue: falta reemplazar el workflow FTP de Colombia Hosting por CI/CD seguro hacia el VPS mediante SSH, evitando que un push continúe intentando desplegar al hosting histórico.
 
 ## 9) Convenciones para futuros cambios
 
@@ -311,3 +323,4 @@ Checklist minimo por cambio:
 - 2026-08-22: Se revierte la prueba temporal de Netlify contra la API de Colombia Hosting; `js/libreria.js` vuelve a usar las rutas relativas `api/tips.php` y `api/categorias.php` para preparar el despliegue autónomo en VPS.
 - 2026-08-23: Preparación de PIA para VPS en la rama `infra/vps-pia`: se agrega Docker Compose con PHP/Apache y MariaDB aislada, plantilla de variables de entorno y configuración PHP sin credenciales hardcodeadas.
 - 2026-08-23: Se agrega `migrations/000_create_schema.sql` para inicializar desde cero las tablas `categorias` y `tips` en despliegues Docker del VPS, con índices para categoría y fecha de modificación.
+- 2026-08-23: PIA se despliega y valida en Contabo con datos restaurados (7 categorías y 64 tips), Caddy, Docker y MariaDB aislada; `https://smarteksoft.com` queda activo con HTTPS de Let's Encrypt y DNS administrado por Cloudflare.
