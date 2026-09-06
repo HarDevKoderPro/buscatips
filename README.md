@@ -178,6 +178,8 @@ BuscaTips/
 │   ├── libreria.js             # 📚 Módulo principal - API calls, cache, búsqueda, renderizado
 │   └── script.js               # 🎮 Orquestador de UI - Eventos, DOM, flujo de la app
 ├── index.html                  # 🏠 Página principal (SPA)
+├── privacy.html                # 🔐 Política de privacidad pública para Google OAuth
+├── terms.html                  # 📄 Condiciones de servicio públicas para Google OAuth
 ├── migrations/                 # 🗃️ Evolución versionada del esquema de base de datos
 │   ├── 000_create_schema.sql   # Esquema completo para instalaciones nuevas
 │   ├── 001_add_categorias.sql  # Migración histórica de categorías
@@ -289,6 +291,7 @@ http://localhost/BuscaTips/
 2. Registra los orígenes JavaScript autorizados de cada instalación, por ejemplo `https://smarteksoft.com` y `http://localhost` para desarrollo.
 3. Define el Client ID del cliente creado en `GOOGLE_CLIENT_ID`. En el VPS Docker se configura en `/opt/apps/pia/.env`; nunca subas ese archivo a Git.
 4. `hardevkoder@gmail.com` recibe automáticamente el rol `admin`; todas las otras cuentas Google autenticadas reciben el rol `invitado` y solo pueden consultar.
+5. Para publicar la aplicación OAuth y permitir cualquier cuenta Google, registra las URLs `https://smarteksoft.com`, `https://smarteksoft.com/privacy.html` y `https://smarteksoft.com/terms.html` en la información de marca de Google Auth Platform.
 
 ---
 
