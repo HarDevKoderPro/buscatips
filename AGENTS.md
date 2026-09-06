@@ -287,7 +287,7 @@ VPS activo:
 - Proxy: Caddy es el único servicio público en los puertos 80/443 y se conecta a la red Docker externa `proxy`.
 - PIA: la rama `infra/vps-pia` define PHP 8.3/Apache y MariaDB 11.4. El contenedor PHP está conectado a `proxy`; MariaDB permanece en la red interna `pia_internal`.
 - Secretos: las credenciales se suministran mediante `/opt/apps/pia/.env`, no versionado y con permisos `600`; `.env.example` documenta las variables requeridas.
-- Google Sign-In: crear un cliente OAuth Web en Google Cloud Console, autorizar `https://smarteksoft.com` como origen JavaScript y definir el Client ID en `GOOGLE_CLIENT_ID` dentro de `/opt/apps/pia/.env`.
+- Google Sign-In: crear un cliente OAuth Web en Google Cloud Console, autorizar `https://smarteksoft.com` como origen JavaScript y definir el Client ID en `GOOGLE_CLIENT_ID` dentro de `/opt/apps/pia/.env`; `compose.yml` lo inyecta en el contenedor PHP.
 - Datos: se restauraron 7 categorías y 64 tips desde un respaldo SQL de Colombia Hosting. La instalación nueva usa `migrations/000_create_schema.sql`.
 - Ruta temporal por IP: `/pia/`. El acceso principal vigente es el dominio raíz `https://smarteksoft.com`.
 - Recuperación: existen snapshots de Contabo `Base-segura-docker-caddy` y `Pia-restaurado-y-verificado`. Auto Backup de Contabo no fue contratado; quedó pendiente automatizar y copiar fuera del VPS los backups SQL de PIA.
@@ -363,3 +363,4 @@ Checklist minimo por cambio:
 - 2026-09-06: Al cerrar sesión en Tips, se recarga la aplicación para limpiar el editor o contenido abierto y restaurar la vista inicial de consulta.
 - 2026-09-06: El formulario de acceso limpia usuario y contraseña al cargar, abrir y cerrar el modal, y desactiva el autocompletado para evitar que credenciales queden visibles en equipos compartidos.
 - 2026-09-06: La autenticación pasa a Google Identity Services desde Home. La API vincula identidades Google y exige sesión para consultar Tips; `hardevkoder@gmail.com` recibe rol admin y cualquier otra cuenta recibe invitado sin permisos de modificación. Se agrega `003_add_rol_invitado.sql`, se deshabilitan visualmente las acciones de invitados y el cierre de sesión se mueve a un icono junto al título de PIA.
+- 2026-09-06: Se corrige el mapeo de `GOOGLE_CLIENT_ID` en `compose.yml` para exponer la variable de entorno del VPS al contenedor PHP.
