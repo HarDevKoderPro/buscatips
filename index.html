@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
   <title>PIA - Personal Information Admin</title>
-  <link rel="stylesheet" href="css/style.css?v=20260906-01" />
+  <link rel="stylesheet" href="css/style.css?v=20260906-02" />
   <link rel="shortcut icon" href="./images/code.ico" type="image/x-icon" />
 </head>
 
@@ -45,6 +45,10 @@
     <aside id="sidebar">
       <h1>PIA Tips</h1>
       <button id="btn-volver-home-tips" class="btn-home" type="button">&larr; Inicio PIA</button>
+      <div id="session-controls" class="session-controls desktop-only hidden">
+        <span id="session-user"></span>
+        <button id="btn-cerrar-sesion" type="button">Cerrar sesion</button>
+      </div>
 
       <!-- Acciones sólo visibles en DESKTOP -->
       <div class="sidebar-actions desktop-only">
@@ -114,7 +118,7 @@
   <!-- Marked.js para renderizar Markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
-  <script src="js/app.js?v=20260906-01" type="module" defer></script>
+  <script src="js/app.js?v=20260906-02" type="module" defer></script>
 </body>
 
 </html>

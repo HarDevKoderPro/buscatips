@@ -25,7 +25,7 @@ import {
   filtrarPorCategoria,
   renderizarTabla,
   resaltarBloquesCodigo,
-} from "./libreria.js?v=20260906-01";
+} from "./libreria.js?v=20260906-02";
 
 // Detección de mobile
 const esMobile = () => window.matchMedia("(max-width: 768px)").matches;
@@ -53,6 +53,7 @@ async function inicializarTips() {
   await cargarYRenderizarCategorias();
   configurarLogin();
   await actualizarSesion();
+  configurarCierreSesion();
 
   // Configurar buscador (disponible en todas las plataformas)
   configurarBuscador();
@@ -299,6 +300,7 @@ function configurarLogin() {
         return;
       }
       usuarioAutenticado = json.data;
+      actualizarControlesSesion();
       formulario.reset();
       const accion = accionPendiente;
       cerrarLogin();
@@ -315,6 +317,7 @@ async function actualizarSesion() {
     const response = await fetch("api/auth.php");
     const json = await response.json();
     usuarioAutenticado = json.success ? json.data : null;
+    actualizarControlesSesion();
   } catch (error) {
     console.error("Error al consultar la sesion:", error);
   }
@@ -334,6 +337,40 @@ function requerirAutenticacion(accion) {
 function cerrarLogin() {
   accionPendiente = null;
   document.getElementById("login-modal").classList.add("hidden");
+}
+
+function configurarCierreSesion() {
+  document.getElementById("btn-cerrar-sesion").addEventListener("click", async () => {
+    try {
+      const response = await fetch("api/auth.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accion: "logout" }),
+      });
+      const json = await response.json();
+      if (!json.success) {
+        alert(json.message || "No fue posible cerrar la sesion.");
+        return;
+      }
+      usuarioAutenticado = null;
+      actualizarControlesSesion();
+    } catch (error) {
+      console.error("Error al cerrar sesion:", error);
+      alert("No fue posible conectar con el servicio de acceso.");
+    }
+  });
+}
+
+function actualizarControlesSesion() {
+  const controles = document.getElementById("session-controls");
+  const usuario = document.getElementById("session-user");
+  if (!usuarioAutenticado) {
+    controles.classList.add("hidden");
+    usuario.textContent = "";
+    return;
+  }
+  usuario.textContent = `Sesion: ${usuarioAutenticado.nombre_mostrado || usuarioAutenticado.usuario}`;
+  controles.classList.remove("hidden");
 }
 
 function mostrarGestorCategorias() {

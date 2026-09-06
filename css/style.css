@@ -211,6 +211,39 @@ body {
   margin-bottom: 10px;
 }
 
+.session-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: -4px 0 14px;
+  padding: 8px 10px;
+  border: 1px solid #1d3b53;
+  border-radius: 5px;
+  color: #9af5ce;
+  font-size: 0.8rem;
+}
+
+#session-user {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#btn-cerrar-sesion {
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  color: #ff8b85;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+#btn-cerrar-sesion:hover {
+  color: #fff;
+}
+
 .sidebar-actions button {
   flex: 1;
 }

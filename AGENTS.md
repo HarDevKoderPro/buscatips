@@ -221,6 +221,7 @@ Validaciones relevantes:
 - `GET /api/auth.php` devuelve el usuario autenticado o `null`.
 - `POST /api/auth.php` acepta las acciones `configurar_admin` (solo sin usuarios), `login` y `logout`.
 - La contraseña se guarda exclusivamente mediante `password_hash`.
+- Tips muestra la sesión local activa y ofrece cierre manual para proteger el acceso desde equipos compartidos.
 
 ### 5.5 `api/sesion.php`
 
@@ -351,3 +352,4 @@ Checklist minimo por cambio:
 - 2026-09-06: Se agrega `api/auth.php` con configuración única del administrador inicial, login/logout local y sesiones seguras; la cookie usa el valor de entorno `production` para activar `Secure`. La protección del CRUD y la interfaz de login quedan para pasos posteriores.
 - 2026-09-06: Se protege el CRUD de tips y categorías en API mediante sesión autenticada y se agrega un modal de login local previo a las acciones de modificación; lectura y búsqueda siguen públicas.
 - 2026-09-06: Se corrige la consulta de login local para usar parámetros PDO separados al comparar usuario y correo, evitando el error SQLSTATE HY093 en MariaDB.
+- 2026-09-06: Se agrega indicador de sesión activa y cierre de sesión manual en Tips; al cerrarla, las modificaciones vuelven a requerir autenticación.
