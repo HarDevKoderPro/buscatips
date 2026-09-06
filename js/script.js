@@ -354,6 +354,7 @@ function configurarCierreSesion() {
       }
       usuarioAutenticado = null;
       actualizarControlesSesion();
+      window.location.reload();
     } catch (error) {
       console.error("Error al cerrar sesion:", error);
       alert("No fue posible conectar con el servicio de acceso.");
