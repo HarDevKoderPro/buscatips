@@ -87,8 +87,8 @@ function iniciarSesion(array $datos): void
     }
 
     $db = obtenerConexion();
-    $stmt = $db->prepare('SELECT id, contrasena_hash FROM usuarios WHERE (usuario = :identificador OR correo = :identificador) AND activo = 1 LIMIT 1');
-    $stmt->execute([':identificador' => $identificador]);
+    $stmt = $db->prepare('SELECT id, contrasena_hash FROM usuarios WHERE (usuario = :usuario OR correo = :correo) AND activo = 1 LIMIT 1');
+    $stmt->execute([':usuario' => $identificador, ':correo' => $identificador]);
     $usuario = $stmt->fetch();
     if (!$usuario || !$usuario['contrasena_hash'] || !password_verify($contrasena, $usuario['contrasena_hash'])) {
         responderJSON(401, false, null, 'Usuario, correo o contrasena incorrectos.');

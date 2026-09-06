@@ -350,3 +350,4 @@ Checklist minimo por cambio:
 - 2026-09-05: Base de autenticación futura: se agregan roles, usuarios, relación usuario-rol e identidades externas a la instalación nueva y mediante la migración `002_add_usuarios_y_roles.sql`; no se altera aún el acceso público ni el CRUD existente.
 - 2026-09-06: Se agrega `api/auth.php` con configuración única del administrador inicial, login/logout local y sesiones seguras; la cookie usa el valor de entorno `production` para activar `Secure`. La protección del CRUD y la interfaz de login quedan para pasos posteriores.
 - 2026-09-06: Se protege el CRUD de tips y categorías en API mediante sesión autenticada y se agrega un modal de login local previo a las acciones de modificación; lectura y búsqueda siguen públicas.
+- 2026-09-06: Se corrige la consulta de login local para usar parámetros PDO separados al comparar usuario y correo, evitando el error SQLSTATE HY093 en MariaDB.
