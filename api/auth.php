@@ -46,7 +46,7 @@ function iniciarSesionSegura(): void
     session_name('pia_session');
     session_set_cookie_params([
         'httponly' => true,
-        'secure' => ENTORNO === 'produccion',
+        'secure' => ENTORNO === 'production',
         'samesite' => 'Lax',
         'path' => '/',
     ]);

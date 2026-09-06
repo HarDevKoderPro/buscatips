@@ -163,7 +163,7 @@ Comportamiento clave:
 
 ### 5.1 `api/config.php`
 
-- Define entorno con `ENTORNO` (`local` o `produccion`)
+- Define entorno con `ENTORNO` (`local` o `production`)
 - Define credenciales DB por entorno
 - Provee:
   - `obtenerConexion(): PDO`
@@ -341,4 +341,4 @@ Checklist minimo por cambio:
 - 2026-08-23: Se agrega `migrations/000_create_schema.sql` para inicializar desde cero las tablas `categorias` y `tips` en despliegues Docker del VPS, con índices para categoría y fecha de modificación.
 - 2026-08-23: PIA se despliega y valida en Contabo con datos restaurados (7 categorías y 64 tips), Caddy, Docker y MariaDB aislada; `https://smarteksoft.com` queda activo con HTTPS de Let's Encrypt y DNS administrado por Cloudflare.
 - 2026-09-05: Base de autenticación futura: se agregan roles, usuarios, relación usuario-rol e identidades externas a la instalación nueva y mediante la migración `002_add_usuarios_y_roles.sql`; no se altera aún el acceso público ni el CRUD existente.
-- 2026-09-06: Se agrega `api/auth.php` con configuración única del administrador inicial, login/logout local y sesiones seguras; la protección del CRUD y la interfaz de login quedan para pasos posteriores.
+- 2026-09-06: Se agrega `api/auth.php` con configuración única del administrador inicial, login/logout local y sesiones seguras; la cookie usa el valor de entorno `production` para activar `Secure`. La protección del CRUD y la interfaz de login quedan para pasos posteriores.
