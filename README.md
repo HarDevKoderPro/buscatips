@@ -347,6 +347,10 @@ Todas las respuestas siguen el formato:
 | `POST` | `/api/categorias.php` | Crear una categoría |
 | `PUT` | `/api/categorias.php?id={id}` | Renombrar una categoría |
 | `DELETE` | `/api/categorias.php?id={id}` | Eliminar una categoría vacía |
+| `GET` | `/api/auth.php` | Consultar la sesión local activa |
+| `POST` | `/api/auth.php` | Configurar el primer administrador, iniciar o cerrar sesión |
+
+La autenticación local se encuentra disponible para pruebas de backend, pero aún no protege el CRUD ni muestra una interfaz de login. La acción `configurar_admin` solo funciona mientras no exista ningún usuario y crea una cuenta con rol `admin`.
 
 ---
 

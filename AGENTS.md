@@ -213,6 +213,13 @@ Validaciones relevantes:
 
 - Script rapido para verificar conexion PDO y devolver JSON
 
+### 5.4 `api/auth.php`
+
+- API de autenticación local basada en sesiones PHP con cookie `HttpOnly`, `SameSite=Lax` y `Secure` en producción.
+- `GET /api/auth.php` devuelve el usuario autenticado o `null`.
+- `POST /api/auth.php` acepta las acciones `configurar_admin` (solo sin usuarios), `login` y `logout`.
+- La contraseña se guarda exclusivamente mediante `password_hash`; el CRUD aún no exige sesión en esta fase.
+
 ## 6) Datos y modelo
 
 Tabla esperada: `tips`
@@ -334,3 +341,4 @@ Checklist minimo por cambio:
 - 2026-08-23: Se agrega `migrations/000_create_schema.sql` para inicializar desde cero las tablas `categorias` y `tips` en despliegues Docker del VPS, con índices para categoría y fecha de modificación.
 - 2026-08-23: PIA se despliega y valida en Contabo con datos restaurados (7 categorías y 64 tips), Caddy, Docker y MariaDB aislada; `https://smarteksoft.com` queda activo con HTTPS de Let's Encrypt y DNS administrado por Cloudflare.
 - 2026-09-05: Base de autenticación futura: se agregan roles, usuarios, relación usuario-rol e identidades externas a la instalación nueva y mediante la migración `002_add_usuarios_y_roles.sql`; no se altera aún el acceso público ni el CRUD existente.
+- 2026-09-06: Se agrega `api/auth.php` con configuración única del administrador inicial, login/logout local y sesiones seguras; la protección del CRUD y la interfaz de login quedan para pasos posteriores.
