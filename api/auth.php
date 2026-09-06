@@ -4,12 +4,14 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/sesion.php';
 
 iniciarSesionSegura();
-
 $metodo = $_SERVER['REQUEST_METHOD'];
 
 try {
     if ($metodo === 'GET') {
-        responderJSON(200, true, obtenerUsuarioSesion(), 'Estado de sesion obtenido.');
+        responderJSON(200, true, [
+            'usuario' => obtenerUsuarioSesion(),
+            'google_client_id' => GOOGLE_CLIENT_ID,
+        ], 'Estado de sesion obtenido.');
     }
 
     if ($metodo !== 'POST') {
@@ -21,52 +23,76 @@ try {
         responderJSON(400, false, null, 'El cuerpo de la peticion debe ser JSON valido.');
     }
 
-    $accion = $datos['accion'] ?? '';
-    if ($accion === 'configurar_admin') {
-        configurarAdministrador($datos);
+    if (($datos['accion'] ?? '') === 'google_login') {
+        iniciarSesionGoogle($datos);
     }
-    if ($accion === 'login') {
-        iniciarSesion($datos);
-    }
-    if ($accion === 'logout') {
+    if (($datos['accion'] ?? '') === 'logout') {
         cerrarSesion();
     }
-
     responderJSON(400, false, null, 'La accion solicitada no es valida.');
 } catch (PDOException $e) {
     error_log('PIA Auth DB Error: ' . $e->getMessage());
     responderJSON(500, false, null, 'Error interno del servidor.');
 }
 
-function configurarAdministrador(array $datos): void
+function iniciarSesionGoogle(array $datos): void
 {
-    $db = obtenerConexion();
-    $totalUsuarios = (int) $db->query('SELECT COUNT(*) FROM usuarios')->fetchColumn();
-    if ($totalUsuarios > 0) {
-        responderJSON(403, false, null, 'El administrador inicial ya fue configurado.');
+    if (GOOGLE_CLIENT_ID === '') {
+        responderJSON(503, false, null, 'El acceso con Google aun no esta configurado.');
+    }
+    $credencial = trim((string) ($datos['credential'] ?? ''));
+    if ($credencial === '') {
+        responderJSON(400, false, null, 'Google no entrego una credencial valida.');
     }
 
-    $usuario = validarTexto($datos['usuario'] ?? null, 'usuario', 100);
-    $correo = validarCorreo($datos['correo'] ?? null);
-    $nombre = validarTexto($datos['nombre_mostrado'] ?? null, 'nombre_mostrado', 150);
-    $contrasena = validarContrasena($datos['contrasena'] ?? null);
+    $respuesta = consultarTokenGoogle($credencial);
+    if (!$respuesta || ($respuesta['aud'] ?? '') !== GOOGLE_CLIENT_ID || !in_array($respuesta['iss'] ?? '', ['accounts.google.com', 'https://accounts.google.com'], true) || !in_array($respuesta['email_verified'] ?? '', [true, 'true', '1', 1], true) || (int) ($respuesta['exp'] ?? 0) <= time()) {
+        responderJSON(401, false, null, 'No fue posible validar la identidad de Google.');
+    }
 
+    $sub = trim((string) ($respuesta['sub'] ?? ''));
+    $correo = validarCorreoGoogle($respuesta['email'] ?? '');
+    $nombre = trim((string) ($respuesta['name'] ?? $correo));
+    if ($sub === '' || $nombre === '' || mb_strlen($nombre) > 150) {
+        responderJSON(401, false, null, 'La identidad de Google esta incompleta.');
+    }
+
+    $db = obtenerConexion();
     $db->beginTransaction();
     try {
-        $stmt = $db->prepare('INSERT INTO usuarios (usuario, correo, nombre_mostrado, contrasena_hash) VALUES (:usuario, :correo, :nombre, :contrasena_hash)');
-        $stmt->execute([
-            ':usuario' => $usuario,
-            ':correo' => $correo,
-            ':nombre' => $nombre,
-            ':contrasena_hash' => password_hash($contrasena, PASSWORD_DEFAULT),
-        ]);
+        $stmt = $db->prepare('SELECT usuario_id FROM identidades_usuario WHERE proveedor = :proveedor AND identificador_proveedor = :identificador LIMIT 1');
+        $stmt->execute([':proveedor' => 'google', ':identificador' => $sub]);
+        $usuarioId = $stmt->fetchColumn();
 
-        $usuarioId = (int) $db->lastInsertId();
-        $rolId = (int) $db->query("SELECT id FROM roles WHERE nombre = 'admin'")->fetchColumn();
-        if ($rolId === 0) {
-            throw new RuntimeException('El rol admin no existe.');
+        if (!$usuarioId) {
+            $stmt = $db->prepare('SELECT id FROM usuarios WHERE correo = :correo LIMIT 1');
+            $stmt->execute([':correo' => $correo]);
+            $usuarioId = $stmt->fetchColumn();
         }
-        $stmt = $db->prepare('INSERT INTO usuarios_roles (usuario_id, rol_id) VALUES (:usuario_id, :rol_id)');
+        if (!$usuarioId) {
+            $usuarioGoogle = 'google_' . $sub;
+            $stmt = $db->prepare('INSERT INTO usuarios (usuario, correo, nombre_mostrado, contrasena_hash) VALUES (:usuario, :correo, :nombre, NULL)');
+            $stmt->execute([':usuario' => $usuarioGoogle, ':correo' => $correo, ':nombre' => $nombre]);
+            $usuarioId = (int) $db->lastInsertId();
+        } else {
+            $stmt = $db->prepare('UPDATE usuarios SET correo = :correo, nombre_mostrado = :nombre, activo = 1 WHERE id = :id');
+            $stmt->execute([':correo' => $correo, ':nombre' => $nombre, ':id' => $usuarioId]);
+        }
+
+        $stmt = $db->prepare('INSERT IGNORE INTO identidades_usuario (usuario_id, proveedor, identificador_proveedor, correo_proveedor) VALUES (:usuario_id, :proveedor, :identificador, :correo)');
+        $stmt->execute([':usuario_id' => $usuarioId, ':proveedor' => 'google', ':identificador' => $sub, ':correo' => $correo]);
+
+        $rol = strtolower($correo) === 'hardevkoder@gmail.com' ? 'admin' : 'invitado';
+        $stmt = $db->prepare('SELECT id FROM roles WHERE nombre = :nombre LIMIT 1');
+        $stmt->execute([':nombre' => $rol]);
+        $rolId = $stmt->fetchColumn();
+        if (!$rolId) {
+            throw new RuntimeException("El rol $rol no existe.");
+        }
+        // Cada acceso Google recibe el rol determinado por la cuenta autenticada.
+        $stmt = $db->prepare('DELETE ur FROM usuarios_roles ur INNER JOIN roles r ON r.id = ur.rol_id WHERE ur.usuario_id = :usuario_id AND r.nombre != :rol');
+        $stmt->execute([':usuario_id' => $usuarioId, ':rol' => $rol]);
+        $stmt = $db->prepare('INSERT IGNORE INTO usuarios_roles (usuario_id, rol_id) VALUES (:usuario_id, :rol_id)');
         $stmt->execute([':usuario_id' => $usuarioId, ':rol_id' => $rolId]);
         $db->commit();
     } catch (Throwable $e) {
@@ -74,28 +100,26 @@ function configurarAdministrador(array $datos): void
         throw $e;
     }
 
-    guardarUsuarioSesion($usuarioId);
-    responderJSON(201, true, obtenerUsuarioSesion(), 'Administrador inicial creado e inicio de sesion realizado.');
+    guardarUsuarioSesion((int) $usuarioId);
+    responderJSON(200, true, obtenerUsuarioSesion(), 'Inicio de sesion con Google realizado.');
 }
 
-function iniciarSesion(array $datos): void
+function consultarTokenGoogle(string $credencial): ?array
 {
-    $identificador = trim((string) ($datos['identificador'] ?? ''));
-    $contrasena = (string) ($datos['contrasena'] ?? '');
-    if ($identificador === '' || $contrasena === '') {
-        responderJSON(400, false, null, 'Debe indicar usuario o correo y contrasena.');
-    }
+    $url = 'https://oauth2.googleapis.com/tokeninfo?id_token=' . rawurlencode($credencial);
+    $contexto = stream_context_create(['http' => ['timeout' => 10, 'ignore_errors' => true]]);
+    $resultado = @file_get_contents($url, false, $contexto);
+    $datos = is_string($resultado) ? json_decode($resultado, true) : null;
+    return is_array($datos) ? $datos : null;
+}
 
-    $db = obtenerConexion();
-    $stmt = $db->prepare('SELECT id, contrasena_hash FROM usuarios WHERE (usuario = :usuario OR correo = :correo) AND activo = 1 LIMIT 1');
-    $stmt->execute([':usuario' => $identificador, ':correo' => $identificador]);
-    $usuario = $stmt->fetch();
-    if (!$usuario || !$usuario['contrasena_hash'] || !password_verify($contrasena, $usuario['contrasena_hash'])) {
-        responderJSON(401, false, null, 'Usuario, correo o contrasena incorrectos.');
+function validarCorreoGoogle($valor): string
+{
+    $correo = trim((string) $valor);
+    if (!filter_var($correo, FILTER_VALIDATE_EMAIL) || mb_strlen($correo) > 255) {
+        responderJSON(401, false, null, 'Google no entrego un correo valido.');
     }
-
-    guardarUsuarioSesion((int) $usuario['id']);
-    responderJSON(200, true, obtenerUsuarioSesion(), 'Inicio de sesion realizado.');
+    return $correo;
 }
 
 function cerrarSesion(): void
@@ -107,31 +131,4 @@ function cerrarSesion(): void
     }
     session_destroy();
     responderJSON(200, true, null, 'Sesion cerrada.');
-}
-
-function validarTexto($valor, string $campo, int $maximo): string
-{
-    $texto = trim((string) $valor);
-    if ($texto === '' || mb_strlen($texto) > $maximo) {
-        responderJSON(400, false, null, "El campo $campo es obligatorio y no puede exceder $maximo caracteres.");
-    }
-    return $texto;
-}
-
-function validarCorreo($valor): string
-{
-    $correo = trim((string) $valor);
-    if (!filter_var($correo, FILTER_VALIDATE_EMAIL) || mb_strlen($correo) > 255) {
-        responderJSON(400, false, null, 'Debe indicar un correo valido de maximo 255 caracteres.');
-    }
-    return $correo;
-}
-
-function validarContrasena($valor): string
-{
-    $contrasena = (string) $valor;
-    if (strlen($contrasena) < 12) {
-        responderJSON(400, false, null, 'La contrasena debe tener al menos 12 caracteres.');
-    }
-    return $contrasena;
 }

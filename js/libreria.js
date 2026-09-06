@@ -426,11 +426,13 @@ export function renderizarTabla(tips, textoBusqueda = "") {
         acciones.appendChild(categoriaAsignada);
       }
 
+      const puedeEditar = Boolean(window.piaUsuario?.roles?.includes("admin"));
       // Botón editar
       const btnEditar = document.createElement("button");
       btnEditar.className = "btn-accion-tip btn-editar-tip";
       btnEditar.title = "Editar tip";
       btnEditar.textContent = "✏️";
+      btnEditar.disabled = !puedeEditar;
       btnEditar.addEventListener("click", (e) => {
         e.stopPropagation();
         const evento = new CustomEvent("activarEdicion", {
@@ -449,6 +451,7 @@ export function renderizarTabla(tips, textoBusqueda = "") {
       btnEliminar.className = "btn-accion-tip btn-eliminar-tip";
       btnEliminar.title = "Eliminar tip";
       btnEliminar.textContent = "🗑️";
+      btnEliminar.disabled = !puedeEditar;
       btnEliminar.addEventListener("click", (e) => {
         e.stopPropagation();
         const evento = new CustomEvent("activarEliminacion", {

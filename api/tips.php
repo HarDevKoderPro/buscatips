@@ -87,6 +87,7 @@ try {
  */
 function manejarGET(): void
 {
+    exigirUsuarioAutenticado();
     $db = obtenerConexion();
 
     // ── Caso 1: Obtener tip por ID ──
@@ -166,7 +167,7 @@ function manejarGET(): void
  */
 function manejarPOST(): void
 {
-    exigirUsuarioAutenticado();
+    exigirAdministrador();
     $db = obtenerConexion();
 
     // Leer y decodificar el body JSON
@@ -224,7 +225,7 @@ function manejarPOST(): void
  */
 function manejarPUT(): void
 {
-    exigirUsuarioAutenticado();
+    exigirAdministrador();
     $db = obtenerConexion();
 
     // Validar que se proporcionó un ID
@@ -318,7 +319,7 @@ function manejarPUT(): void
  */
 function manejarDELETE(): void
 {
-    exigirUsuarioAutenticado();
+    exigirAdministrador();
     $db = obtenerConexion();
 
     // Validar que se proporcionó un ID

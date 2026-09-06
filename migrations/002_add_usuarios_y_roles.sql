@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS identidades_usuario (
 
 INSERT INTO roles (nombre, descripcion) VALUES
   ('admin', 'Administracion completa de la plataforma'),
+  ('invitado', 'Consulta autenticada de contenido'),
   ('docente', 'Gestion de contenido, cursos y estudiantes asignados'),
   ('estudiante', 'Consulta de contenido y seguimiento academico propio')
 ON DUPLICATE KEY UPDATE descripcion = VALUES(descripcion);

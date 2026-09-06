@@ -90,6 +90,7 @@
 | **CSS3** | Estilos, tema oscuro, diseño responsivo |
 | **JavaScript ES6+** | Lógica de la app con módulos ES6 (`import`/`export`) |
 | **Marked.js** | Parser de Markdown a HTML (vía CDN) |
+| **Google Identity Services** | Inicio de sesión con cuentas Google |
 
 ### Backend
 | Tecnología | Uso |
@@ -162,7 +163,9 @@ BuscaTips/
 │       └── deploy.yml          # 🚀 GitHub Actions - Despliegue automático por FTP
 ├── api/
 │   ├── config.php              # ⚙️ Configuración de BD y funciones helper (PDO, JSON response)
+│   ├── auth.php                # 🔐 Autenticación con Google y sesión
 │   ├── categorias.php           # 📡 API REST - Gestión de categorías
+│   ├── sesion.php               # 🔐 Sesión segura y autorización por rol
 │   ├── tips.php                # 📡 API REST - Endpoints CRUD para tips
 │   └── test_conexion.php       # 🧪 Script para verificar conexión a la base de datos
 ├── css/
@@ -178,7 +181,8 @@ BuscaTips/
 ├── migrations/                 # 🗃️ Evolución versionada del esquema de base de datos
 │   ├── 000_create_schema.sql   # Esquema completo para instalaciones nuevas
 │   ├── 001_add_categorias.sql  # Migración histórica de categorías
-│   └── 002_add_usuarios_y_roles.sql # Base de usuarios, identidades y roles
+│   ├── 002_add_usuarios_y_roles.sql # Base de usuarios, identidades y roles
+│   └── 003_add_rol_invitado.sql # Rol de consulta autenticada
 └── README.md                   # 📖 Este archivo
 ```
 
@@ -235,7 +239,7 @@ CREATE TABLE IF NOT EXISTS tips (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-Para una instalación existente, ejecuta una sola vez cada migración pendiente antes de desplegar el código: `migrations/001_add_categorias.sql` si aún no existen categorías y `migrations/002_add_usuarios_y_roles.sql` para preparar el login futuro. Esta última no modifica el funcionamiento actual ni crea cuentas de acceso.
+Para una instalación existente, ejecuta una sola vez cada migración pendiente antes de desplegar el código: `migrations/001_add_categorias.sql`, `migrations/002_add_usuarios_y_roles.sql` y `migrations/003_add_rol_invitado.sql`.
 
 ### 3. Configurar Credenciales
 
@@ -279,6 +283,13 @@ Si la conexión es exitosa, verás un mensaje de confirmación.
 http://localhost/BuscaTips/
 ```
 
+### 6. Configurar Google Sign-In
+
+1. Crea un cliente OAuth 2.0 de tipo **Aplicación web** en Google Cloud Console.
+2. Registra los orígenes JavaScript autorizados de cada instalación, por ejemplo `https://smarteksoft.com` y `http://localhost` para desarrollo.
+3. Define el Client ID del cliente creado en `GOOGLE_CLIENT_ID`. En el VPS Docker se configura en `/opt/apps/pia/.env`; nunca subas ese archivo a Git.
+4. `hardevkoder@gmail.com` recibe automáticamente el rol `admin`; todas las otras cuentas Google autenticadas reciben el rol `invitado` y solo pueden consultar.
+
 ---
 
 ## 🚀 Uso
@@ -290,6 +301,8 @@ http://localhost/BuscaTips/
 4. Escribe el **contenido** en formato Markdown
 5. Opcionalmente, haz clic en **"Vista Previa"** para ver cómo se renderizará
 6. Haz clic en **"Crear Tip"** para guardarlo en la base de datos
+
+> Requiere iniciar sesión con Google y tener rol `admin`.
 
 ### Buscar Tips
 1. Escribe en el campo **"Buscar por nombre..."** del panel lateral
@@ -350,7 +363,7 @@ Todas las respuestas siguen el formato:
 | `GET` | `/api/auth.php` | Consultar la sesión local activa |
 | `POST` | `/api/auth.php` | Configurar el primer administrador, iniciar o cerrar sesión |
 
-Las consultas de Tips y categorías son públicas. Crear, editar o eliminar tips y categorías exige una sesión autenticada. La interfaz muestra un modal de acceso local antes de esas acciones, limpia sus campos para no conservar credenciales en pantalla, indica la cuenta activa y permite cerrar sesión manualmente. La acción `configurar_admin` solo funciona mientras no exista ningún usuario y crea una cuenta con rol `admin`.
+El acceso a Tips y categorías exige una sesión iniciada con Google. Crear, editar o eliminar tips y categorías requiere el rol `admin`; el rol `invitado` solo puede consultar y visualiza las acciones de modificación deshabilitadas. `hardevkoder@gmail.com` recibe el rol `admin` automáticamente. `POST /api/auth.php` acepta `google_login` y `logout`; no existe autenticación por usuario y contraseña.
 
 ---
 
@@ -522,6 +535,7 @@ PIA está operativo en `https://smarteksoft.com` sobre un VPS Contabo con Ubuntu
 - Caddy actúa como proxy inverso y administra certificados HTTPS de Let's Encrypt.
 - El servicio `app` usa PHP 8.3 con Apache y se comunica con MariaDB por la red Docker interna.
 - Las credenciales se configuran en un archivo `.env` no versionado. Usa `.env.example` como plantilla; nunca subas el archivo real a Git.
+- `GOOGLE_CLIENT_ID` debe contener el Client ID público del cliente OAuth Web autorizado para `https://smarteksoft.com`.
 - Para instalaciones nuevas, ejecuta `migrations/000_create_schema.sql` dentro de la base MariaDB antes de usar la aplicación.
 
 La rama de infraestructura activa es `infra/vps-pia`. El workflow FTP de la siguiente sección corresponde al despliegue histórico en Colombia Hosting y no debe usarse para actualizar el VPS.

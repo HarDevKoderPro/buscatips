@@ -46,6 +46,7 @@ BuscaTips/
 |- migrations/000_create_schema.sql
 |- migrations/001_add_categorias.sql
 |- migrations/002_add_usuarios_y_roles.sql
+|- migrations/003_add_rol_invitado.sql
 |- README.md
 ```
 
@@ -56,13 +57,15 @@ Nota de transicion: el nombre funcional del producto pasa a `PIA (Personal Infor
 Flujo de datos general:
 
 1. Usuario aterriza en `Home` (PIA) en `index.html`
-2. `js/app.js` maneja rutas hash (`#home`, `#tips`, `#drive`)
-3. Al entrar a Tips, `js/script.js` orquesta UI de tips y usa `js/libreria.js`
-4. `js/libreria.js` consume `api/tips.php` via `fetch`
-5. `api/tips.php` enruta por metodo HTTP y usa `api/config.php`
-6. `api/config.php` abre conexion PDO y responde JSON estandarizado
-7. MySQL persiste las tablas `tips` y `categorias`
-8. Frontend renderiza Markdown con `marked` y resalta bloques de código con `highlight.js` desde CDN
+2. `js/app.js` consulta la sesión y exige el inicio de sesión con Google antes de acceder al contenido
+3. `api/auth.php` valida la identidad de Google, vincula la cuenta local y crea la sesión PHP
+4. `js/app.js` maneja rutas hash (`#home`, `#tips`, `#drive`)
+5. Al entrar a Tips, `js/script.js` orquesta UI de tips y usa `js/libreria.js`
+6. `js/libreria.js` consume `api/tips.php` via `fetch`
+7. `api/tips.php` enruta por metodo HTTP y usa `api/config.php`
+8. `api/config.php` abre conexion PDO y responde JSON estandarizado
+9. MySQL persiste las tablas `tips`, `categorias`, `usuarios`, `roles` e `identidades_usuario`
+10. Frontend renderiza Markdown con `marked` y resalta bloques de código con `highlight.js` desde CDN
 
 ## 4) Frontend (detalle operativo)
 
@@ -91,6 +94,7 @@ Responsabilidades principales:
 - Conectar botones de modulos (`Tips`, `Drive`) y retorno a Home
 - Cargar modulo Tips de forma diferida al entrar a `#tips`
 - Importar `script.js` con el mismo parámetro de versión de recursos estáticos para invalidar caché tras deploy
+- Solicitar el inicio de sesión Google desde Home y conservar el usuario autenticado entre módulos
 
 ### 4.3 `js/script.js` (orquestador Tips)
 
@@ -115,6 +119,7 @@ Responsabilidades principales:
 - Manejar eliminacion con confirmacion
 - Mostrar mensajes temporales de exito
 - Mantener el estado de colapso de resultados por categoría durante la sesión
+- Habilitar las acciones de modificación únicamente para rol `admin`; los invitados ven los controles desactivados
 
 Eventos custom usados:
 
@@ -217,16 +222,16 @@ Validaciones relevantes:
 
 ### 5.4 `api/auth.php`
 
-- API de autenticación local basada en sesiones PHP con cookie `HttpOnly`, `SameSite=Lax` y `Secure` en producción.
-- `GET /api/auth.php` devuelve el usuario autenticado o `null`.
-- `POST /api/auth.php` acepta las acciones `configurar_admin` (solo sin usuarios), `login` y `logout`.
-- La contraseña se guarda exclusivamente mediante `password_hash`.
-- Tips muestra la sesión local activa y ofrece cierre manual para proteger el acceso desde equipos compartidos. El modal de login no conserva los campos de credenciales y, al cerrar sesión, recarga el módulo para restaurar el estado inicial de consulta.
+- API de autenticación Google basada en sesiones PHP con cookie `HttpOnly`, `SameSite=Lax` y `Secure` en producción.
+- `GET /api/auth.php` devuelve el usuario autenticado y el `GOOGLE_CLIENT_ID` público para Google Identity Services.
+- `POST /api/auth.php` acepta `google_login`, que valida audiencia, emisor, correo verificado y vigencia del token emitido por Google, y `logout`.
+- Las identidades se vinculan mediante `identidades_usuario`; no se almacenan contraseñas ni tokens de Google.
+- `hardevkoder@gmail.com` recibe rol `admin`; cualquier otra cuenta Google autenticada recibe rol `invitado` de consulta.
 
 ### 5.5 `api/sesion.php`
 
 - Centraliza la sesión segura y la obtención del usuario autenticado.
-- Las operaciones `POST`, `PUT` y `DELETE` de tips y categorías exigen una sesión autenticada; sus `GET` permanecen públicos.
+- Todas las operaciones de Tips y categorías exigen sesión autenticada. Las operaciones `POST`, `PUT` y `DELETE` requieren además rol `admin`.
 
 ## 6) Datos y modelo
 
@@ -255,10 +260,10 @@ Migraciones:
 
 Base de identidad preparada (sin autenticación activa todavía):
 
-- `usuarios`: cuentas locales con usuario, correo, nombre mostrado, hash de contraseña y estado.
+- `usuarios`: cuentas locales vinculadas con Google, correo, nombre mostrado y estado. La columna histórica `contrasena_hash` no se usa.
 - `roles`: roles iniciales `admin`, `docente` y `estudiante`.
 - `usuarios_roles`: relación de múltiples roles por cuenta.
-- `identidades_usuario`: identidades externas, preparada para vincular Google sin guardar tokens.
+- `identidades_usuario`: identidades externas de Google sin guardar tokens.
 
 ## 7) Despliegue
 
@@ -282,6 +287,7 @@ VPS activo:
 - Proxy: Caddy es el único servicio público en los puertos 80/443 y se conecta a la red Docker externa `proxy`.
 - PIA: la rama `infra/vps-pia` define PHP 8.3/Apache y MariaDB 11.4. El contenedor PHP está conectado a `proxy`; MariaDB permanece en la red interna `pia_internal`.
 - Secretos: las credenciales se suministran mediante `/opt/apps/pia/.env`, no versionado y con permisos `600`; `.env.example` documenta las variables requeridas.
+- Google Sign-In: crear un cliente OAuth Web en Google Cloud Console, autorizar `https://smarteksoft.com` como origen JavaScript y definir el Client ID en `GOOGLE_CLIENT_ID` dentro de `/opt/apps/pia/.env`.
 - Datos: se restauraron 7 categorías y 64 tips desde un respaldo SQL de Colombia Hosting. La instalación nueva usa `migrations/000_create_schema.sql`.
 - Ruta temporal por IP: `/pia/`. El acceso principal vigente es el dominio raíz `https://smarteksoft.com`.
 - Recuperación: existen snapshots de Contabo `Base-segura-docker-caddy` y `Pia-restaurado-y-verificado`. Auto Backup de Contabo no fue contratado; quedó pendiente automatizar y copiar fuera del VPS los backups SQL de PIA.
@@ -304,6 +310,7 @@ VPS activo:
   - `libreria.js`: datos/API/render de lista
 - Si cambia el criterio de busqueda en backend, reflejarlo tambien en el refiltrado frontend.
 - Si se agregan nuevos endpoints, documentarlos en `README.md` y en este archivo.
+- Nunca usar un rol comunicado por el frontend como autorización: la API debe validar sesión y rol para cada operación protegida.
 - Las categorías son únicas por nombre y cada tip tiene exactamente una categoría al crearse o editarse; los tips antiguos sin categoría deben clasificarse al modificarlos.
 - Si se agregan archivos o carpetas, actualizar snapshot de estructura.
 
@@ -355,3 +362,4 @@ Checklist minimo por cambio:
 - 2026-09-06: Se agrega indicador de sesión activa y cierre de sesión manual en Tips; al cerrarla, las modificaciones vuelven a requerir autenticación.
 - 2026-09-06: Al cerrar sesión en Tips, se recarga la aplicación para limpiar el editor o contenido abierto y restaurar la vista inicial de consulta.
 - 2026-09-06: El formulario de acceso limpia usuario y contraseña al cargar, abrir y cerrar el modal, y desactiva el autocompletado para evitar que credenciales queden visibles en equipos compartidos.
+- 2026-09-06: La autenticación pasa a Google Identity Services desde Home. La API vincula identidades Google y exige sesión para consultar Tips; `hardevkoder@gmail.com` recibe rol admin y cualquier otra cuenta recibe invitado sin permisos de modificación. Se agrega `003_add_rol_invitado.sql`, se deshabilitan visualmente las acciones de invitados y el cierre de sesión se mueve a un icono junto al título de PIA.

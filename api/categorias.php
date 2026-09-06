@@ -18,6 +18,7 @@ try {
     $metodo = $_SERVER['REQUEST_METHOD'];
 
     if ($metodo === 'GET') {
+        exigirUsuarioAutenticado();
         $categorias = $db->query('
             SELECT c.id, c.nombre, c.fecha_creacion, COUNT(t.id) AS total_tips
             FROM categorias c LEFT JOIN tips t ON t.categoria_id = c.id
@@ -28,7 +29,7 @@ try {
     }
 
     if ($metodo === 'POST') {
-        exigirUsuarioAutenticado();
+        exigirAdministrador();
         $nombre = obtenerNombreCategoria();
         $stmt = $db->prepare('SELECT id, nombre FROM categorias WHERE nombre = :nombre');
         $stmt->execute([':nombre' => $nombre]);
@@ -48,7 +49,7 @@ try {
     }
 
     if ($metodo === 'PUT') {
-        exigirUsuarioAutenticado();
+        exigirAdministrador();
         $nombre = obtenerNombreCategoria();
         $stmt = $db->prepare('SELECT id FROM categorias WHERE nombre = :nombre AND id != :id');
         $stmt->execute([':nombre' => $nombre, ':id' => $id]);
@@ -61,7 +62,7 @@ try {
     }
 
     if ($metodo === 'DELETE') {
-        exigirUsuarioAutenticado();
+        exigirAdministrador();
         if ((int) $categoria['total_tips'] > 0) {
             responderJSON(400, false, $categoria, 'No se puede eliminar una categoria con tips asignados.');
         }

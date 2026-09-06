@@ -25,7 +25,7 @@ import {
   filtrarPorCategoria,
   renderizarTabla,
   resaltarBloquesCodigo,
-} from "./libreria.js?v=20260906-02";
+} from "./libreria.js?v=20260906-03";
 
 // Detección de mobile
 const esMobile = () => window.matchMedia("(max-width: 768px)").matches;
@@ -39,8 +39,6 @@ let abortController = null;
 let tipsInicializado = false;
 let categorias = [];
 let resultadosColapsados = {};
-let usuarioAutenticado = null;
-let accionPendiente = null;
 
 // ─── INICIALIZACIÓN ────
 
@@ -48,19 +46,10 @@ async function inicializarTips() {
   if (tipsInicializado) return;
   tipsInicializado = true;
 
-  // Cargar el catalogo y sus categorias antes de activar los filtros.
-  await cargarTips();
-  await cargarYRenderizarCategorias();
-  configurarLogin();
-  await actualizarSesion();
-  configurarCierreSesion();
-
   // Configurar buscador (disponible en todas las plataformas)
   configurarBuscador();
   configurarFiltroCategoria();
   configurarToggleTips();
-  aplicarFiltrosLocales();
-
   // Configurar toggle de resultados para mobile
   configurarToggleResultadosMobile();
 
@@ -73,12 +62,15 @@ async function inicializarTips() {
   // Escuchar eventos personalizados de edición y eliminación
   document.addEventListener("activarEdicion", (e) => {
     const { id, titulo, contenido, categoriaId } = e.detail;
-    requerirAutenticacion(() => abrirEditor(titulo, contenido, true, id, categoriaId));
+    if (esAdministrador()) abrirEditor(titulo, contenido, true, id, categoriaId);
   });
 
   document.addEventListener("activarEliminacion", (e) => {
-    requerirAutenticacion(() => manejarEliminacion(e.detail.id, e.detail.nombre));
+    if (esAdministrador()) manejarEliminacion(e.detail.id, e.detail.nombre);
   });
+
+  document.addEventListener("pia-sesion-actualizada", actualizarPorSesion);
+  await actualizarPorSesion();
 }
 
 if (document.readyState === "loading") {
@@ -262,125 +254,36 @@ function configurarBotonCrear() {
   if (!btnCrear) return;
 
   btnCrear.addEventListener("click", () => {
-    requerirAutenticacion(() => abrirEditor("", "", false, null));
+    if (esAdministrador()) abrirEditor("", "", false, null);
   });
 }
 
 function configurarBotonGestionarCategorias() {
   const boton = document.getElementById("btn-gestionar-categorias");
   if (!boton) return;
-  boton.addEventListener("click", () => requerirAutenticacion(mostrarGestorCategorias));
-}
-
-function configurarLogin() {
-  const modal = document.getElementById("login-modal");
-  const formulario = document.getElementById("login-form");
-  limpiarFormularioLogin();
-  window.setTimeout(limpiarFormularioLogin, 100);
-  document.getElementById("btn-cerrar-login").addEventListener("click", cerrarLogin);
-  modal.addEventListener("click", (event) => {
-    if (event.target === modal) cerrarLogin();
-  });
-  formulario.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const error = document.getElementById("login-error");
-    error.textContent = "";
-    const datos = new FormData(formulario);
-    try {
-      const response = await fetch("api/auth.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          accion: "login",
-          identificador: datos.get("identificador"),
-          contrasena: datos.get("contrasena"),
-        }),
-      });
-      const json = await response.json();
-      if (!json.success || !json.data) {
-        error.textContent = json.message || "No fue posible iniciar sesion.";
-        return;
-      }
-      usuarioAutenticado = json.data;
-      actualizarControlesSesion();
-      formulario.reset();
-      const accion = accionPendiente;
-      cerrarLogin();
-      if (accion) accion();
-    } catch (errorLogin) {
-      console.error("Error al iniciar sesion:", errorLogin);
-      error.textContent = "No fue posible conectar con el servicio de acceso.";
-    }
+  boton.addEventListener("click", () => {
+    if (esAdministrador()) mostrarGestorCategorias();
   });
 }
 
-async function actualizarSesion() {
-  try {
-    const response = await fetch("api/auth.php");
-    const json = await response.json();
-    usuarioAutenticado = json.success ? json.data : null;
-    actualizarControlesSesion();
-  } catch (error) {
-    console.error("Error al consultar la sesion:", error);
-  }
+function esAdministrador() {
+  return Boolean(window.piaUsuario?.roles?.includes("admin"));
 }
 
-function requerirAutenticacion(accion) {
-  if (usuarioAutenticado) {
-    accion();
+async function actualizarPorSesion() {
+  const autenticado = Boolean(window.piaUsuario);
+  const administrador = esAdministrador();
+  document.getElementById("btn-crear-tip")?.toggleAttribute("disabled", !administrador);
+  document.getElementById("btn-gestionar-categorias")?.toggleAttribute("disabled", !administrador);
+  document.getElementById("app").classList.toggle("usuario-invitado", autenticado && !administrador);
+  if (!autenticado) {
+    document.getElementById("resultados-body").innerHTML = "";
+    document.getElementById("contenido").innerHTML = "";
     return;
   }
-  accionPendiente = accion;
-  limpiarFormularioLogin();
-  document.getElementById("login-error").textContent = "";
-  document.getElementById("login-modal").classList.remove("hidden");
-  document.getElementById("login-identificador").focus();
-}
-
-function cerrarLogin() {
-  accionPendiente = null;
-  document.getElementById("login-modal").classList.add("hidden");
-  limpiarFormularioLogin();
-}
-
-function limpiarFormularioLogin() {
-  const formulario = document.getElementById("login-form");
-  if (formulario) formulario.reset();
-}
-
-function configurarCierreSesion() {
-  document.getElementById("btn-cerrar-sesion").addEventListener("click", async () => {
-    try {
-      const response = await fetch("api/auth.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accion: "logout" }),
-      });
-      const json = await response.json();
-      if (!json.success) {
-        alert(json.message || "No fue posible cerrar la sesion.");
-        return;
-      }
-      usuarioAutenticado = null;
-      actualizarControlesSesion();
-      window.location.reload();
-    } catch (error) {
-      console.error("Error al cerrar sesion:", error);
-      alert("No fue posible conectar con el servicio de acceso.");
-    }
-  });
-}
-
-function actualizarControlesSesion() {
-  const controles = document.getElementById("session-controls");
-  const usuario = document.getElementById("session-user");
-  if (!usuarioAutenticado) {
-    controles.classList.add("hidden");
-    usuario.textContent = "";
-    return;
-  }
-  usuario.textContent = `Sesion: ${usuarioAutenticado.nombre_mostrado || usuarioAutenticado.usuario}`;
-  controles.classList.remove("hidden");
+  await cargarTips();
+  await cargarYRenderizarCategorias();
+  aplicarFiltrosLocales();
 }
 
 function mostrarGestorCategorias() {

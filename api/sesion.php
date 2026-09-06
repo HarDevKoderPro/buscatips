@@ -49,3 +49,12 @@ function exigirUsuarioAutenticado()
     }
     return $usuario;
 }
+
+function exigirAdministrador(): array
+{
+    $usuario = exigirUsuarioAutenticado();
+    if (!in_array('admin', $usuario['roles'], true)) {
+        responderJSON(403, false, null, 'No tienes permisos para modificar informacion.');
+    }
+    return $usuario;
+}

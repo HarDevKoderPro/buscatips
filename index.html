@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
   <title>PIA - Personal Information Admin</title>
-  <link rel="stylesheet" href="css/style.css?v=20260906-02" />
+  <link rel="stylesheet" href="css/style.css?v=20260906-03" />
   <link rel="shortcut icon" href="./images/code.ico" type="image/x-icon" />
 </head>
 
@@ -43,12 +43,13 @@
 
   <div id="app" class="screen-hidden">
     <aside id="sidebar">
-      <h1>PIA Tips</h1>
-      <button id="btn-volver-home-tips" class="btn-home" type="button">&larr; Inicio PIA</button>
-      <div id="session-controls" class="session-controls desktop-only hidden">
-        <span id="session-user"></span>
-        <button id="btn-cerrar-sesion" type="button">Cerrar sesion</button>
+      <div class="tips-title-row">
+        <h1>PIA Tips</h1>
+        <button id="btn-cerrar-sesion" class="logout-icon hidden" type="button" aria-label="Cerrar sesion" title="Cerrar sesion">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M21 3v18H9"></path></svg>
+        </button>
       </div>
+      <button id="btn-volver-home-tips" class="btn-home" type="button">&larr; Inicio PIA</button>
 
       <!-- Acciones sólo visibles en DESKTOP -->
       <div class="sidebar-actions desktop-only">
@@ -101,24 +102,20 @@
   </section>
 
   <div id="login-modal" class="login-modal hidden" role="dialog" aria-modal="true" aria-labelledby="login-title">
-    <form id="login-form" class="login-panel" autocomplete="off">
-      <button id="btn-cerrar-login" class="login-close" type="button" aria-label="Cerrar">&times;</button>
-      <h2 id="login-title">Inicia sesion para modificar</h2>
-      <p>La consulta de tips es publica. Necesitas acceso para crear, editar o eliminar informacion.</p>
-      <label for="login-identificador">Usuario o correo</label>
-      <input id="login-identificador" name="identificador" autocomplete="off" required />
-      <label for="login-contrasena">Contrasena</label>
-      <input id="login-contrasena" name="contrasena" type="password" autocomplete="off" required />
+    <div class="login-panel">
+      <h2 id="login-title">Accede a PIA</h2>
+      <p>Inicia sesion con tu cuenta de Google para consultar la informacion.</p>
+      <div id="google-signin-button" aria-label="Iniciar sesion con Google"></div>
       <p id="login-error" class="login-error" role="alert"></p>
-      <button class="btn-save" type="submit">Iniciar sesion</button>
-      <p class="login-google-note">El acceso con Google se agregara en el siguiente paso.</p>
-    </form>
+      <p class="login-google-note">Los permisos dependen del rol asignado a tu cuenta.</p>
+    </div>
   </div>
 
   <!-- Marked.js para renderizar Markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
-  <script src="js/app.js?v=20260906-02" type="module" defer></script>
+  <script src="https://accounts.google.com/gsi/client" async></script>
+  <script src="js/app.js?v=20260906-03" type="module" defer></script>
 </body>
 
 </html>
