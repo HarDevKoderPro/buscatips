@@ -275,6 +275,8 @@ function configurarBotonGestionarCategorias() {
 function configurarLogin() {
   const modal = document.getElementById("login-modal");
   const formulario = document.getElementById("login-form");
+  limpiarFormularioLogin();
+  window.setTimeout(limpiarFormularioLogin, 100);
   document.getElementById("btn-cerrar-login").addEventListener("click", cerrarLogin);
   modal.addEventListener("click", (event) => {
     if (event.target === modal) cerrarLogin();
@@ -329,6 +331,7 @@ function requerirAutenticacion(accion) {
     return;
   }
   accionPendiente = accion;
+  limpiarFormularioLogin();
   document.getElementById("login-error").textContent = "";
   document.getElementById("login-modal").classList.remove("hidden");
   document.getElementById("login-identificador").focus();
@@ -337,6 +340,12 @@ function requerirAutenticacion(accion) {
 function cerrarLogin() {
   accionPendiente = null;
   document.getElementById("login-modal").classList.add("hidden");
+  limpiarFormularioLogin();
+}
+
+function limpiarFormularioLogin() {
+  const formulario = document.getElementById("login-form");
+  if (formulario) formulario.reset();
 }
 
 function configurarCierreSesion() {

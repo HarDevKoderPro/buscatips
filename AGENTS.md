@@ -221,7 +221,7 @@ Validaciones relevantes:
 - `GET /api/auth.php` devuelve el usuario autenticado o `null`.
 - `POST /api/auth.php` acepta las acciones `configurar_admin` (solo sin usuarios), `login` y `logout`.
 - La contraseña se guarda exclusivamente mediante `password_hash`.
-- Tips muestra la sesión local activa y ofrece cierre manual para proteger el acceso desde equipos compartidos. Al cerrarla, recarga el módulo para restaurar el estado inicial de consulta.
+- Tips muestra la sesión local activa y ofrece cierre manual para proteger el acceso desde equipos compartidos. El modal de login no conserva los campos de credenciales y, al cerrar sesión, recarga el módulo para restaurar el estado inicial de consulta.
 
 ### 5.5 `api/sesion.php`
 
@@ -354,3 +354,4 @@ Checklist minimo por cambio:
 - 2026-09-06: Se corrige la consulta de login local para usar parámetros PDO separados al comparar usuario y correo, evitando el error SQLSTATE HY093 en MariaDB.
 - 2026-09-06: Se agrega indicador de sesión activa y cierre de sesión manual en Tips; al cerrarla, las modificaciones vuelven a requerir autenticación.
 - 2026-09-06: Al cerrar sesión en Tips, se recarga la aplicación para limpiar el editor o contenido abierto y restaurar la vista inicial de consulta.
+- 2026-09-06: El formulario de acceso limpia usuario y contraseña al cargar, abrir y cerrar el modal, y desactiva el autocompletado para evitar que credenciales queden visibles en equipos compartidos.
