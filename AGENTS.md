@@ -43,6 +43,7 @@ BuscaTips/
 |- js/script.js
 |- migrations/000_create_schema.sql
 |- migrations/001_add_categorias.sql
+|- migrations/002_add_usuarios_y_roles.sql
 |- README.md
 ```
 
@@ -235,6 +236,14 @@ Migraciones:
 
 - Instalaciones nuevas: ejecutar `migrations/000_create_schema.sql`.
 - Instalaciones existentes previas a categorías: ejecutar una sola vez `migrations/001_add_categorias.sql`.
+- Instalaciones existentes: ejecutar una sola vez `migrations/002_add_usuarios_y_roles.sql` para preparar autenticación futura.
+
+Base de identidad preparada (sin autenticación activa todavía):
+
+- `usuarios`: cuentas locales con usuario, correo, nombre mostrado, hash de contraseña y estado.
+- `roles`: roles iniciales `admin`, `docente` y `estudiante`.
+- `usuarios_roles`: relación de múltiples roles por cuenta.
+- `identidades_usuario`: identidades externas, preparada para vincular Google sin guardar tokens.
 
 ## 7) Despliegue
 
@@ -324,3 +333,4 @@ Checklist minimo por cambio:
 - 2026-08-23: Preparación de PIA para VPS en la rama `infra/vps-pia`: se agrega Docker Compose con PHP/Apache y MariaDB aislada, plantilla de variables de entorno y configuración PHP sin credenciales hardcodeadas.
 - 2026-08-23: Se agrega `migrations/000_create_schema.sql` para inicializar desde cero las tablas `categorias` y `tips` en despliegues Docker del VPS, con índices para categoría y fecha de modificación.
 - 2026-08-23: PIA se despliega y valida en Contabo con datos restaurados (7 categorías y 64 tips), Caddy, Docker y MariaDB aislada; `https://smarteksoft.com` queda activo con HTTPS de Let's Encrypt y DNS administrado por Cloudflare.
+- 2026-09-05: Base de autenticación futura: se agregan roles, usuarios, relación usuario-rol e identidades externas a la instalación nueva y mediante la migración `002_add_usuarios_y_roles.sql`; no se altera aún el acceso público ni el CRUD existente.

@@ -162,6 +162,7 @@ BuscaTips/
 │       └── deploy.yml          # 🚀 GitHub Actions - Despliegue automático por FTP
 ├── api/
 │   ├── config.php              # ⚙️ Configuración de BD y funciones helper (PDO, JSON response)
+│   ├── categorias.php           # 📡 API REST - Gestión de categorías
 │   ├── tips.php                # 📡 API REST - Endpoints CRUD para tips
 │   └── test_conexion.php       # 🧪 Script para verificar conexión a la base de datos
 ├── css/
@@ -174,6 +175,10 @@ BuscaTips/
 │   ├── libreria.js             # 📚 Módulo principal - API calls, cache, búsqueda, renderizado
 │   └── script.js               # 🎮 Orquestador de UI - Eventos, DOM, flujo de la app
 ├── index.html                  # 🏠 Página principal (SPA)
+├── migrations/                 # 🗃️ Evolución versionada del esquema de base de datos
+│   ├── 000_create_schema.sql   # Esquema completo para instalaciones nuevas
+│   ├── 001_add_categorias.sql  # Migración histórica de categorías
+│   └── 002_add_usuarios_y_roles.sql # Base de usuarios, identidades y roles
 └── README.md                   # 📖 Este archivo
 ```
 
@@ -230,7 +235,7 @@ CREATE TABLE IF NOT EXISTS tips (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-Para una instalación existente, ejecuta una sola vez `migrations/001_add_categorias.sql` antes de desplegar el código.
+Para una instalación existente, ejecuta una sola vez cada migración pendiente antes de desplegar el código: `migrations/001_add_categorias.sql` si aún no existen categorías y `migrations/002_add_usuarios_y_roles.sql` para preparar el login futuro. Esta última no modifica el funcionamiento actual ni crea cuentas de acceso.
 
 ### 3. Configurar Credenciales
 
