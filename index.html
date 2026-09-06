@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
   <title>PIA - Personal Information Admin</title>
-  <link rel="stylesheet" href="css/style.css?v=20260808-12" />
+  <link rel="stylesheet" href="css/style.css?v=20260906-01" />
   <link rel="shortcut icon" href="./images/code.ico" type="image/x-icon" />
 </head>
 
@@ -96,10 +96,25 @@
     </div>
   </section>
 
+  <div id="login-modal" class="login-modal hidden" role="dialog" aria-modal="true" aria-labelledby="login-title">
+    <form id="login-form" class="login-panel">
+      <button id="btn-cerrar-login" class="login-close" type="button" aria-label="Cerrar">&times;</button>
+      <h2 id="login-title">Inicia sesion para modificar</h2>
+      <p>La consulta de tips es publica. Necesitas acceso para crear, editar o eliminar informacion.</p>
+      <label for="login-identificador">Usuario o correo</label>
+      <input id="login-identificador" name="identificador" autocomplete="username" required />
+      <label for="login-contrasena">Contrasena</label>
+      <input id="login-contrasena" name="contrasena" type="password" autocomplete="current-password" required />
+      <p id="login-error" class="login-error" role="alert"></p>
+      <button class="btn-save" type="submit">Iniciar sesion</button>
+      <p class="login-google-note">El acceso con Google se agregara en el siguiente paso.</p>
+    </form>
+  </div>
+
   <!-- Marked.js para renderizar Markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
-  <script src="js/app.js?v=20260808-12" type="module" defer></script>
+  <script src="js/app.js?v=20260906-01" type="module" defer></script>
 </body>
 
 </html>

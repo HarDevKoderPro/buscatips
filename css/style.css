@@ -289,6 +289,52 @@ body {
   display: none !important;
 }
 
+.login-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(1, 8, 16, 0.8);
+}
+
+.login-panel {
+  position: relative;
+  width: min(420px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 28px;
+  border: 1px solid #3d837a;
+  border-radius: 10px;
+  background: #011627;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+}
+
+.login-panel h2 { color: #7fdbca; }
+.login-panel p { color: #b6c3d8; line-height: 1.5; }
+.login-panel label { color: #b6c3d8; font-size: 0.9rem; }
+.login-panel input {
+  padding: 10px;
+  border: 1px solid #1d3b53;
+  border-radius: 4px;
+  background: #01111d;
+  color: #d6deeb;
+}
+.login-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  border: 0;
+  background: transparent;
+  color: #b6c3d8;
+  cursor: pointer;
+  font-size: 1.8rem;
+}
+.login-error { min-height: 1.2em; color: #ff7b72 !important; font-size: 0.9rem; }
+.login-google-note { color: #5f7e97 !important; font-size: 0.85rem; text-align: center; }
+
 .separator {
   border: 0;
   border-top: 1px solid #1d3b53;

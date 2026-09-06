@@ -25,7 +25,7 @@ import {
   filtrarPorCategoria,
   renderizarTabla,
   resaltarBloquesCodigo,
-} from "./libreria.js?v=20260808-12";
+} from "./libreria.js?v=20260906-01";
 
 // Detección de mobile
 const esMobile = () => window.matchMedia("(max-width: 768px)").matches;
@@ -39,6 +39,8 @@ let abortController = null;
 let tipsInicializado = false;
 let categorias = [];
 let resultadosColapsados = {};
+let usuarioAutenticado = null;
+let accionPendiente = null;
 
 // ─── INICIALIZACIÓN ────
 
@@ -49,6 +51,8 @@ async function inicializarTips() {
   // Cargar el catalogo y sus categorias antes de activar los filtros.
   await cargarTips();
   await cargarYRenderizarCategorias();
+  configurarLogin();
+  await actualizarSesion();
 
   // Configurar buscador (disponible en todas las plataformas)
   configurarBuscador();
@@ -68,11 +72,11 @@ async function inicializarTips() {
   // Escuchar eventos personalizados de edición y eliminación
   document.addEventListener("activarEdicion", (e) => {
     const { id, titulo, contenido, categoriaId } = e.detail;
-    abrirEditor(titulo, contenido, true, id, categoriaId);
+    requerirAutenticacion(() => abrirEditor(titulo, contenido, true, id, categoriaId));
   });
 
   document.addEventListener("activarEliminacion", (e) => {
-    manejarEliminacion(e.detail.id, e.detail.nombre);
+    requerirAutenticacion(() => manejarEliminacion(e.detail.id, e.detail.nombre));
   });
 }
 
@@ -257,15 +261,79 @@ function configurarBotonCrear() {
   if (!btnCrear) return;
 
   btnCrear.addEventListener("click", () => {
-    // Abrir editor vacío para nuevo tip
-    abrirEditor("", "", false, null);
+    requerirAutenticacion(() => abrirEditor("", "", false, null));
   });
 }
 
 function configurarBotonGestionarCategorias() {
   const boton = document.getElementById("btn-gestionar-categorias");
   if (!boton) return;
-  boton.addEventListener("click", mostrarGestorCategorias);
+  boton.addEventListener("click", () => requerirAutenticacion(mostrarGestorCategorias));
+}
+
+function configurarLogin() {
+  const modal = document.getElementById("login-modal");
+  const formulario = document.getElementById("login-form");
+  document.getElementById("btn-cerrar-login").addEventListener("click", cerrarLogin);
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) cerrarLogin();
+  });
+  formulario.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const error = document.getElementById("login-error");
+    error.textContent = "";
+    const datos = new FormData(formulario);
+    try {
+      const response = await fetch("api/auth.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          accion: "login",
+          identificador: datos.get("identificador"),
+          contrasena: datos.get("contrasena"),
+        }),
+      });
+      const json = await response.json();
+      if (!json.success || !json.data) {
+        error.textContent = json.message || "No fue posible iniciar sesion.";
+        return;
+      }
+      usuarioAutenticado = json.data;
+      formulario.reset();
+      const accion = accionPendiente;
+      cerrarLogin();
+      if (accion) accion();
+    } catch (errorLogin) {
+      console.error("Error al iniciar sesion:", errorLogin);
+      error.textContent = "No fue posible conectar con el servicio de acceso.";
+    }
+  });
+}
+
+async function actualizarSesion() {
+  try {
+    const response = await fetch("api/auth.php");
+    const json = await response.json();
+    usuarioAutenticado = json.success ? json.data : null;
+  } catch (error) {
+    console.error("Error al consultar la sesion:", error);
+  }
+}
+
+function requerirAutenticacion(accion) {
+  if (usuarioAutenticado) {
+    accion();
+    return;
+  }
+  accionPendiente = accion;
+  document.getElementById("login-error").textContent = "";
+  document.getElementById("login-modal").classList.remove("hidden");
+  document.getElementById("login-identificador").focus();
+}
+
+function cerrarLogin() {
+  accionPendiente = null;
+  document.getElementById("login-modal").classList.add("hidden");
 }
 
 function mostrarGestorCategorias() {

@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/sesion.php';
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -27,6 +28,7 @@ try {
     }
 
     if ($metodo === 'POST') {
+        exigirUsuarioAutenticado();
         $nombre = obtenerNombreCategoria();
         $stmt = $db->prepare('SELECT id, nombre FROM categorias WHERE nombre = :nombre');
         $stmt->execute([':nombre' => $nombre]);
@@ -46,6 +48,7 @@ try {
     }
 
     if ($metodo === 'PUT') {
+        exigirUsuarioAutenticado();
         $nombre = obtenerNombreCategoria();
         $stmt = $db->prepare('SELECT id FROM categorias WHERE nombre = :nombre AND id != :id');
         $stmt->execute([':nombre' => $nombre, ':id' => $id]);
@@ -58,6 +61,7 @@ try {
     }
 
     if ($metodo === 'DELETE') {
+        exigirUsuarioAutenticado();
         if ((int) $categoria['total_tips'] > 0) {
             responderJSON(400, false, $categoria, 'No se puede eliminar una categoria con tips asignados.');
         }

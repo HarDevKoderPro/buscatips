@@ -350,7 +350,7 @@ Todas las respuestas siguen el formato:
 | `GET` | `/api/auth.php` | Consultar la sesión local activa |
 | `POST` | `/api/auth.php` | Configurar el primer administrador, iniciar o cerrar sesión |
 
-La autenticación local se encuentra disponible para pruebas de backend, pero aún no protege el CRUD ni muestra una interfaz de login. La acción `configurar_admin` solo funciona mientras no exista ningún usuario y crea una cuenta con rol `admin`.
+Las consultas de Tips y categorías son públicas. Crear, editar o eliminar tips y categorías exige una sesión autenticada. La interfaz muestra un modal de acceso local antes de esas acciones. La acción `configurar_admin` solo funciona mientras no exista ningún usuario y crea una cuenta con rol `admin`.
 
 ---
 

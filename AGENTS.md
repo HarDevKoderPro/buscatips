@@ -28,6 +28,8 @@ BuscaTips/
 |- .github/workflows/deploy.yml
 |- AGENTS.md
 |- api/config.php
+|- api/auth.php
+|- api/sesion.php
 |- api/categorias.php
 |- api/tips.php
 |- api/test_conexion.php
@@ -218,7 +220,12 @@ Validaciones relevantes:
 - API de autenticación local basada en sesiones PHP con cookie `HttpOnly`, `SameSite=Lax` y `Secure` en producción.
 - `GET /api/auth.php` devuelve el usuario autenticado o `null`.
 - `POST /api/auth.php` acepta las acciones `configurar_admin` (solo sin usuarios), `login` y `logout`.
-- La contraseña se guarda exclusivamente mediante `password_hash`; el CRUD aún no exige sesión en esta fase.
+- La contraseña se guarda exclusivamente mediante `password_hash`.
+
+### 5.5 `api/sesion.php`
+
+- Centraliza la sesión segura y la obtención del usuario autenticado.
+- Las operaciones `POST`, `PUT` y `DELETE` de tips y categorías exigen una sesión autenticada; sus `GET` permanecen públicos.
 
 ## 6) Datos y modelo
 
@@ -342,3 +349,4 @@ Checklist minimo por cambio:
 - 2026-08-23: PIA se despliega y valida en Contabo con datos restaurados (7 categorías y 64 tips), Caddy, Docker y MariaDB aislada; `https://smarteksoft.com` queda activo con HTTPS de Let's Encrypt y DNS administrado por Cloudflare.
 - 2026-09-05: Base de autenticación futura: se agregan roles, usuarios, relación usuario-rol e identidades externas a la instalación nueva y mediante la migración `002_add_usuarios_y_roles.sql`; no se altera aún el acceso público ni el CRUD existente.
 - 2026-09-06: Se agrega `api/auth.php` con configuración única del administrador inicial, login/logout local y sesiones seguras; la cookie usa el valor de entorno `production` para activar `Secure`. La protección del CRUD y la interfaz de login quedan para pasos posteriores.
+- 2026-09-06: Se protege el CRUD de tips y categorías en API mediante sesión autenticada y se agrega un modal de login local previo a las acciones de modificación; lectura y búsqueda siguen públicas.

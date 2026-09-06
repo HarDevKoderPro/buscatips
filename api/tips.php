@@ -21,6 +21,7 @@
 
 // ─── INCLUIR CONFIGURACIÓN ────────────────────────────────────
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/sesion.php';
 
 // ─── HEADERS CORS ─────────────────────────────────────────────
 // Permitir peticiones desde cualquier origen (ajustar en producción)
@@ -165,6 +166,7 @@ function manejarGET(): void
  */
 function manejarPOST(): void
 {
+    exigirUsuarioAutenticado();
     $db = obtenerConexion();
 
     // Leer y decodificar el body JSON
@@ -222,6 +224,7 @@ function manejarPOST(): void
  */
 function manejarPUT(): void
 {
+    exigirUsuarioAutenticado();
     $db = obtenerConexion();
 
     // Validar que se proporcionó un ID
@@ -315,6 +318,7 @@ function manejarPUT(): void
  */
 function manejarDELETE(): void
 {
+    exigirUsuarioAutenticado();
     $db = obtenerConexion();
 
     // Validar que se proporcionó un ID
