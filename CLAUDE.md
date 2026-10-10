@@ -389,3 +389,4 @@ Checklist minimo por cambio:
 - 2026-10-10: Se elimina la rama `infra/vps-pia` (local, GitHub y VPS); `main` queda como única rama. Se decide no purgar el respaldo SQL del historial de git.
 - 2026-10-10: Respaldos automáticos de la base de datos: se agrega `scripts/backup-db.sh` (dump validado, rotación local y copia cifrada a Google Drive con rclone) y `.gitattributes` para mantener LF en scripts; `scripts/` se excluye de la imagen Docker.
 - 2026-10-10: Respaldos configurados en el VPS: rclone instalado, remotes `gdrive` (scope `drive.file`) y `pia-crypt` (`gdrive:PIA-respaldos`), primer respaldo cifrado verificado y cron diario `30 8 * * *` (zona del VPS `Europe/Berlin`). Se corrige `RCLONE_REMOTE` vacío para desactivar la subida.
+- 2026-10-10: Prueba del flujo de trabajo con despliegue automático (título temporal `PIAS Tips`, revertido). Versión de recursos estáticos actual: `20261010-02`.
