@@ -35,6 +35,8 @@ BuscaTips/
 |- api/test_conexion.php
 |- Dockerfile
 |- .dockerignore
+|- .gitattributes
+|- scripts/backup-db.sh
 |- compose.yml
 |- .env.example
 |- css/style.css
@@ -301,7 +303,9 @@ VPS activo:
 - Páginas públicas OAuth: `privacy.html` y `terms.html` cumplen los enlaces de política de privacidad y condiciones requeridos para publicar la aplicación Google OAuth.
 - Datos: se restauraron 7 categorías y 64 tips desde un respaldo SQL de Colombia Hosting. La instalación nueva usa `migrations/000_create_schema.sql`.
 - Ruta temporal por IP: `/pia/`. El acceso principal vigente es el dominio raíz `https://smarteksoft.com`.
-- Recuperación: existen snapshots de Contabo `Base-segura-docker-caddy` y `Pia-restaurado-y-verificado`. Auto Backup de Contabo no fue contratado; quedó pendiente automatizar y copiar fuera del VPS los backups SQL de PIA.
+- Recuperación: existen snapshots de Contabo `Base-segura-docker-caddy` y `Pia-restaurado-y-verificado`. Auto Backup de Contabo no fue contratado.
+- Respaldos de BD: `scripts/backup-db.sh` genera un `mariadb-dump` comprimido desde el contenedor `db`, valida que esté completo, lo guarda en `~/backups/pia` del usuario `deploy` (retención 14 días) y sube una copia cifrada a Google Drive con el remote rclone `pia-crypt:` (cifrado `crypt` sobre un remote `drive` con alcance `drive.file`; retención 90 días). Se programa a diario en el crontab de `deploy` y registra su salida en `~/backups/pia/backup.log`. Las contraseñas del remote `crypt` deben guardarse también fuera del VPS: sin ellas los respaldos de Drive no se pueden descifrar. Variables opcionales: `BACKUP_DIR`, `RETENCION_LOCAL_DIAS`, `RCLONE_REMOTE` (vacío desactiva la subida) y `RETENCION_REMOTA_DIAS`.
+- Scripts de shell: `.gitattributes` fuerza finales de línea LF en `*.sh` para que funcionen en el VPS aunque se editen en Windows.
 - Despliegue actual: automático con cada push a `main` mediante el workflow `Deploy al VPS`. Como respaldo manual, en `/opt/apps/pia` ejecutar `git pull --ff-only origin main` y `docker compose up -d --build`. Si el sitio no cambia, comparar `git log --oneline -1` del VPS con GitHub.
 
 ## 8) Riesgos y deuda tecnica detectada
@@ -310,7 +314,7 @@ VPS activo:
 2. CORS abierto (`*`) en API; revisar si debe restringirse en produccion.
 3. Desfase documental entre `README.md` y archivos reales existentes.
 4. No hay suite automatizada de tests en el repo.
-5. Operación VPS: falta finalizar `backup-db.sh`, programar ejecución diaria y copiar los respaldos fuera del VPS antes de alojar datos de clientes.
+5. Operación VPS: los respaldos diarios dependen del crontab y de la autorización de rclone con Google Drive; revisar periódicamente `~/backups/pia/backup.log` y probar una restauración. No hay alertas automáticas si un respaldo falla.
 6. Despliegue: el workflow no ejecuta tests ni migraciones SQL; las migraciones nuevas deben aplicarse manualmente en MariaDB antes o después del push según corresponda.
 7. Exposición de datos: el respaldo `pia_buscatips_backup_2026-08-23.sql` (64 tips y 7 categorías, sin usuarios) estuvo versionado desde el commit `75c116a` y se servía públicamente en el sitio. Se retiró del repo y de la imagen el 2026-10-10, pero sigue en el historial de git del repositorio público. Decisión del responsable (2026-10-10): no purgar el historial. Si algún tip contiene credenciales, deben rotarse, ya que purgar no revierte la exposición.
 
@@ -383,3 +387,4 @@ Checklist minimo por cambio:
 - 2026-10-09: Despliegue automático al VPS: `main` pasa a ser la rama de producción; el workflow FTP de Colombia Hosting se reemplaza por `Deploy al VPS`, que usa SSH con una llave restringida por comando forzado y verifica el sitio tras desplegar. Se actualiza `README.md`.
 - 2026-10-10: Se detecta que el respaldo SQL versionado y la documentación se servían públicamente por `COPY . /var/www/html/`. Se amplía `.dockerignore`, se retira el respaldo del repo (`/*.sql` en `.gitignore`) y se documentan la regla de imagen Docker y el riesgo de historial. Los secrets FTP se eliminaron de GitHub; el despliegue usa solo los secrets `VPS_*` (`VPS_KNOWN_HOSTS` contiene la llave `ssh-ed25519` del servidor).
 - 2026-10-10: Se elimina la rama `infra/vps-pia` (local, GitHub y VPS); `main` queda como única rama. Se decide no purgar el respaldo SQL del historial de git.
+- 2026-10-10: Respaldos automáticos de la base de datos: se agrega `scripts/backup-db.sh` (dump validado, rotación local y copia cifrada a Google Drive con rclone) y `.gitattributes` para mantener LF en scripts; `scripts/` se excluye de la imagen Docker.

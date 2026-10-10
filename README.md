@@ -575,6 +575,30 @@ git push origin main
 
 GitHub Actions actualizará el código y reconstruirá el contenedor en el VPS automáticamente. ✅ El workflow no ejecuta migraciones SQL: aplícalas manualmente en MariaDB cuando corresponda.
 
+### Respaldos de la Base de Datos
+
+`scripts/backup-db.sh` se ejecuta a diario en el VPS desde el crontab del usuario `deploy`:
+
+1. Genera un `mariadb-dump` comprimido desde el contenedor `db` y valida que esté completo.
+2. Lo guarda en `~/backups/pia` y elimina los respaldos locales de más de 14 días.
+3. Sube una copia cifrada a Google Drive mediante el remote rclone `pia-crypt:` y elimina las copias remotas de más de 90 días.
+
+Entrada del crontab:
+
+```
+30 3 * * * /opt/apps/pia/scripts/backup-db.sh >> $HOME/backups/pia/backup.log 2>&1
+```
+
+Para restaurar un respaldo:
+
+```
+rclone copy pia-crypt:pia_AAAA-MM-DD_HHMM.sql.gz ~/restaurar/
+cd /opt/apps/pia
+zcat ~/restaurar/pia_AAAA-MM-DD_HHMM.sql.gz | docker compose exec -T db sh -c 'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb -uroot'
+```
+
+Guarda las contraseñas del remote `pia-crypt` fuera del VPS (por ejemplo, en un gestor de contraseñas): sin ellas las copias de Drive no se pueden descifrar.
+
 ### Actualización de Archivos Estáticos
 
 Los recursos de frontend usan un parámetro de versión en sus rutas para evitar que el navegador conserve JavaScript o CSS anterior después de un despliegue. Cuando se modifique cualquier archivo frontend que requiera actualización inmediata, incrementa el mismo valor `v=` en `index.html`, `js/app.js` y `js/script.js`.

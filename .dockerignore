@@ -12,3 +12,5 @@ README.md
 .gitignore
 Dockerfile
 compose.yml
+scripts
+.gitattributes
