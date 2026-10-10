@@ -311,6 +311,7 @@ VPS activo:
 - Ruta temporal por IP: `/pia/`. El acceso principal vigente es el dominio raíz `https://smarteksoft.com`.
 - Recuperación: existen snapshots de Contabo `Base-segura-docker-caddy` y `Pia-restaurado-y-verificado`. Auto Backup de Contabo no fue contratado.
 - Respaldos de BD: `scripts/backup-db.sh` genera un `mariadb-dump` comprimido desde el contenedor `db`, valida que esté completo, lo guarda en `~/backups/pia` del usuario `deploy` (retención 14 días) y sube una copia cifrada a Google Drive con el remote rclone `pia-crypt:` (cifrado `crypt` sobre un remote `drive` con alcance `drive.file`; retención 90 días). Se programa a diario a las 08:30 hora del VPS (zona `Europe/Berlin`; 1:30–2:30 a. m. en Colombia) con la entrada `30 8 * * *` en el crontab de `deploy` y registra su salida en `~/backups/pia/backup.log`. Las contraseñas del remote `crypt` deben guardarse también fuera del VPS: sin ellas los respaldos de Drive no se pueden descifrar. Variables opcionales: `BACKUP_DIR`, `RETENCION_LOCAL_DIAS`, `RCLONE_REMOTE` (vacío desactiva la subida) y `RETENCION_REMOTA_DIAS`.
+- Restauración de prueba (verificada el 2026-10-10): el dump incluye `CREATE DATABASE`, así que nunca se carga en `pia-db-1` salvo que se quiera sobrescribir producción. Procedimiento: `docker run -d --name pia-restore-test --network none -e MARIADB_ROOT_PASSWORD=prueba mariadb:11.4`, esperar a `healthcheck.sh --connect`, cargar con `zcat <respaldo>.sql.gz | docker exec -i pia-restore-test mariadb -uroot -pprueba`, comparar conteos de `tips`, `categorias`, `usuarios`, `roles` e `identidades_usuario` contra producción y eliminar con `docker rm -f -v pia-restore-test`.
 - Scripts de shell: `.gitattributes` fuerza finales de línea LF en `*.sh` para que funcionen en el VPS aunque se editen en Windows.
 - Despliegue actual: automático con cada push a `main` mediante el workflow `Deploy al VPS`. Como respaldo manual, en `/opt/apps/pia` ejecutar `git pull --ff-only origin main` y `docker compose up -d --build`. Si el sitio no cambia, comparar `git log --oneline -1` del VPS con GitHub.
 
@@ -320,7 +321,7 @@ VPS activo:
 2. CORS: restringido a `https://smarteksoft.com` desde 2026-10-10. Si se agrega otro dominio que consuma la API, debe incluirse explícitamente.
 3. Desfase documental entre `README.md` y archivos reales existentes.
 4. No hay suite automatizada de tests en el repo.
-5. Operación VPS: los respaldos diarios dependen del crontab y de la autorización de rclone con Google Drive; revisar periódicamente `~/backups/pia/backup.log` y probar una restauración. No hay alertas automáticas si un respaldo falla.
+5. Operación VPS: los respaldos diarios dependen del crontab y de la autorización de rclone con Google Drive; revisar periódicamente `~/backups/pia/backup.log`. La restauración del respaldo local se verificó el 2026-10-10; no se ha probado descifrar una copia desde Drive. No hay alertas automáticas si un respaldo falla.
 6. Despliegue: el workflow no ejecuta tests ni migraciones SQL; las migraciones nuevas deben aplicarse manualmente en MariaDB antes o después del push según corresponda.
 7. Exposición de datos: el respaldo `pia_buscatips_backup_2026-08-23.sql` (64 tips y 7 categorías, sin usuarios) estuvo versionado desde el commit `75c116a` y se servía públicamente en el sitio. Se retiró del repo y de la imagen el 2026-10-10, pero sigue en el historial de git del repositorio público. Decisión del responsable (2026-10-10): no purgar el historial. Si algún tip contiene credenciales, deben rotarse, ya que purgar no revierte la exposición.
 
@@ -328,8 +329,8 @@ VPS activo:
 
 1. ~~Reiniciar el VPS~~: hecho el 2026-10-10; los contenedores (`caddy`, `pia-app-1`, `pia-db-1` y los de `tucultura`) volvieron solos y el sitio responde.
 2. ~~Restringir CORS~~: hecho el 2026-10-10.
-3. Verificar el primer respaldo programado (08:30 hora del VPS del 2026-10-11) con `tail -5 ~/backups/pia/backup.log`; debe terminar en `Respaldo finalizado`.
-4. Probar una restauración completa de un respaldo en una base temporal de MariaDB.
+3. ~~Verificar el primer respaldo programado~~: hecho; el cron corrió el 2026-10-10 a las 08:30 hora del VPS, subió la copia cifrada y terminó en `Respaldo finalizado`.
+4. ~~Probar una restauración completa~~: hecho el 2026-10-10 con `pia_2026-10-10_0830.sql.gz` en un contenedor desechable; conteos idénticos a producción (82 tips, 13 categorías, 3 usuarios, 4 roles, 2 identidades). Opcional: probar también descargar y descifrar una copia desde `pia-crypt:`.
 5. Opcional: alertas (correo o Telegram) cuando falle un respaldo.
 6. Confirmar que el inicio automático de Google funciona tras elegir la cuenta una vez en el selector FedCM; si el modal sigue mostrando dos cuadros, mostrar el botón solo cuando el selector no esté disponible.
 7. Rotar las credenciales históricas de BD en Colombia Hosting o dar de baja ese hosting.
@@ -413,3 +414,4 @@ Checklist minimo por cambio:
 - 2026-10-10: Se agrega la lista de pendientes acordados en la sección 8.
 - 2026-10-10: CORS de `api/tips.php` y `api/categorias.php` restringido a `https://smarteksoft.com` (pendiente 2 cerrado).
 - 2026-10-10: VPS reiniciado; contenedores levantados automáticamente y sitio verificado (pendiente 1 cerrado).
+- 2026-10-10: Verificado el respaldo programado de las 08:30 y probada una restauración completa en un contenedor MariaDB desechable; se documenta el procedimiento (pendientes 3 y 4 cerrados).
