@@ -324,6 +324,17 @@ VPS activo:
 6. Despliegue: el workflow no ejecuta tests ni migraciones SQL; las migraciones nuevas deben aplicarse manualmente en MariaDB antes o después del push según corresponda.
 7. Exposición de datos: el respaldo `pia_buscatips_backup_2026-08-23.sql` (64 tips y 7 categorías, sin usuarios) estuvo versionado desde el commit `75c116a` y se servía públicamente en el sitio. Se retiró del repo y de la imagen el 2026-10-10, pero sigue en el historial de git del repositorio público. Decisión del responsable (2026-10-10): no purgar el historial. Si algún tip contiene credenciales, deben rotarse, ya que purgar no revierte la exposición.
 
+### Pendientes acordados (2026-10-10)
+
+1. Reiniciar el VPS (`sudo reboot`): Ubuntu indica `System restart required`. Los contenedores tienen `restart: unless-stopped`; tras el reinicio, verificar que `https://smarteksoft.com` responda.
+2. Restringir CORS: reemplazar `Access-Control-Allow-Origin: *` en la API por `https://smarteksoft.com`.
+3. Verificar el primer respaldo programado (08:30 hora del VPS del 2026-10-11) con `tail -5 ~/backups/pia/backup.log`; debe terminar en `Respaldo finalizado`.
+4. Probar una restauración completa de un respaldo en una base temporal de MariaDB.
+5. Opcional: alertas (correo o Telegram) cuando falle un respaldo.
+6. Confirmar que el inicio automático de Google funciona tras elegir la cuenta una vez en el selector FedCM; si el modal sigue mostrando dos cuadros, mostrar el botón solo cuando el selector no esté disponible.
+7. Rotar las credenciales históricas de BD en Colombia Hosting o dar de baja ese hosting.
+8. Opcional: regenerar la llave SSH de despliegue (`VPS_SSH_KEY`), cuya captura difuminada se compartió durante la configuración.
+
 ## 9) Convenciones para futuros cambios
 
 - Mantener respuestas API con shape consistente (`success`, `message`, `data`).
@@ -399,3 +410,4 @@ Checklist minimo por cambio:
 - 2026-10-10: Corrección de navegación: al recargar en `#tips` la sesión se resolvía después del enrutado y la app quedaba en Home con el hash `#tips`, de modo que el botón Tips no respondía. Ahora `consultarSesion` vuelve a resolver la ruta y los botones de módulo usan `navegar`. Versión de recursos: `20261010-03`.
 - 2026-10-10: Bloques de código: se agrega un botón de copiar con confirmación visual en la vista del tip y en la vista previa del editor. Versión de recursos: `20261010-04`.
 - 2026-10-10: Inicio de sesión automático con Google (`auto_select` + `prompt()`), sesión PHP de 7 días y botones de regreso a Home que ya no cierran la sesión. Versión de recursos: `20261010-05`.
+- 2026-10-10: Se agrega la lista de pendientes acordados en la sección 8.
