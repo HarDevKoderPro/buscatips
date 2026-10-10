@@ -332,7 +332,7 @@ VPS activo:
 3. ~~Verificar el primer respaldo programado~~: hecho; el cron corrió el 2026-10-10 a las 08:30 hora del VPS, subió la copia cifrada y terminó en `Respaldo finalizado`.
 4. ~~Probar una restauración completa~~: hecho el 2026-10-10 con `pia_2026-10-10_0830.sql.gz` en un contenedor desechable; conteos idénticos a producción (82 tips, 13 categorías, 3 usuarios, 4 roles, 2 identidades). Opcional: probar también descargar y descifrar una copia desde `pia-crypt:`.
 5. Opcional: alertas (correo o Telegram) cuando falle un respaldo.
-6. Confirmar que el inicio automático de Google funciona tras elegir la cuenta una vez en el selector FedCM; si el modal sigue mostrando dos cuadros, mostrar el botón solo cuando el selector no esté disponible.
+6. ~~Confirmar el inicio automático de Google~~: verificado por el responsable el 2026-10-10.
 7. Rotar las credenciales históricas de BD en Colombia Hosting o dar de baja ese hosting.
 8. Opcional: regenerar la llave SSH de despliegue (`VPS_SSH_KEY`), cuya captura difuminada se compartió durante la configuración.
 
@@ -415,3 +415,4 @@ Checklist minimo por cambio:
 - 2026-10-10: CORS de `api/tips.php` y `api/categorias.php` restringido a `https://smarteksoft.com` (pendiente 2 cerrado).
 - 2026-10-10: VPS reiniciado; contenedores levantados automáticamente y sitio verificado (pendiente 1 cerrado).
 - 2026-10-10: Verificado el respaldo programado de las 08:30 y probada una restauración completa en un contenedor MariaDB desechable; se documenta el procedimiento (pendientes 3 y 4 cerrados).
+- 2026-10-10: Inicio automático de Google verificado en producción (pendiente 6 cerrado). Migración a VPS con despliegue continuo completada.
