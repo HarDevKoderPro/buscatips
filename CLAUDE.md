@@ -160,7 +160,7 @@ Comportamiento clave:
 - Desktop: panel lateral responsivo (`clamp(400px, 35vw, 520px)`) + visor flexible, para priorizar titulos de tips y acciones visibles
 - Acciones de editar y eliminar visibles permanentemente al final de cada resultado de tip
 - El tip abierto se resalta en la lista con un efecto glass translúcido
-- Titulo `PIA Tips` centrado en el panel lateral
+- Titulo `PIAS Tips` centrado en el panel lateral (la "S" es una marca temporal para verificar el despliegue)
 - Se carga desde `index.html` con parámetro de versión para evitar CSS desactualizado en caché
 - Mobile (`max-width: 768px`):
   - Home colapsa tarjetas en una columna
@@ -371,3 +371,4 @@ Checklist minimo por cambio:
 - 2026-09-06: Se agregan `privacy.html` y `terms.html` como páginas públicas requeridas por Google OAuth para permitir publicar el acceso de cuentas externas.
 - 2026-10-09: `AGENTS.md` se renombra a `CLAUDE.md` como archivo de contexto principal; se conserva el contenido y se actualizan sus referencias internas.
 - 2026-10-09: Se corrige la sección de datos: la autenticación Google figura como activa, se documenta el rol `invitado` y la migración `003_add_rol_invitado.sql`.
+- 2026-10-09: Prueba de despliegue: el título del panel lateral cambia temporalmente a `PIAS Tips` y se sube la versión de recursos estáticos a `20261009-01`.
