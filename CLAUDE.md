@@ -312,7 +312,7 @@ VPS activo:
 4. No hay suite automatizada de tests en el repo.
 5. Operación VPS: falta finalizar `backup-db.sh`, programar ejecución diaria y copiar los respaldos fuera del VPS antes de alojar datos de clientes.
 6. Despliegue: el workflow no ejecuta tests ni migraciones SQL; las migraciones nuevas deben aplicarse manualmente en MariaDB antes o después del push según corresponda.
-7. Exposición de datos: el respaldo `pia_buscatips_backup_2026-08-23.sql` (64 tips y 7 categorías, sin usuarios) estuvo versionado desde el commit `75c116a` y se servía públicamente en el sitio. Se retiró del repo y de la imagen el 2026-10-10, pero sigue en el historial de git del repositorio público; pendiente decidir si se purga el historial.
+7. Exposición de datos: el respaldo `pia_buscatips_backup_2026-08-23.sql` (64 tips y 7 categorías, sin usuarios) estuvo versionado desde el commit `75c116a` y se servía públicamente en el sitio. Se retiró del repo y de la imagen el 2026-10-10, pero sigue en el historial de git del repositorio público. Decisión: no purgar el historial porque los tips no contienen credenciales; si en el futuro se detecta alguna, rotarla.
 
 ## 9) Convenciones para futuros cambios
 
@@ -382,3 +382,4 @@ Checklist minimo por cambio:
 - 2026-10-09: Se revierte la prueba de despliegue: el título vuelve a `PIA Tips` y la versión de recursos estáticos a `20260906-03`. Flujo de despliegue manual en VPS verificado.
 - 2026-10-09: Despliegue automático al VPS: `main` pasa a ser la rama de producción; el workflow FTP de Colombia Hosting se reemplaza por `Deploy al VPS`, que usa SSH con una llave restringida por comando forzado y verifica el sitio tras desplegar. Se actualiza `README.md`.
 - 2026-10-10: Se detecta que el respaldo SQL versionado y la documentación se servían públicamente por `COPY . /var/www/html/`. Se amplía `.dockerignore`, se retira el respaldo del repo (`/*.sql` en `.gitignore`) y se documentan la regla de imagen Docker y el riesgo de historial. Los secrets FTP se eliminaron de GitHub; el despliegue usa solo los secrets `VPS_*` (`VPS_KNOWN_HOSTS` contiene la llave `ssh-ed25519` del servidor).
+- 2026-10-10: Se elimina la rama `infra/vps-pia` (local, GitHub y VPS); `main` queda como única rama. Se decide no purgar el respaldo SQL del historial de git.
