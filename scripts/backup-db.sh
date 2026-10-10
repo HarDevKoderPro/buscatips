@@ -6,7 +6,7 @@ set -euo pipefail
 APP_DIR="${APP_DIR:-/opt/apps/pia}"
 BACKUP_DIR="${BACKUP_DIR:-$HOME/backups/pia}"
 RETENCION_LOCAL_DIAS="${RETENCION_LOCAL_DIAS:-14}"
-RCLONE_REMOTE="${RCLONE_REMOTE:-pia-crypt:}"
+RCLONE_REMOTE="${RCLONE_REMOTE-pia-crypt:}"
 RETENCION_REMOTA_DIAS="${RETENCION_REMOTA_DIAS:-90}"
 
 log() { echo "$(date '+%F %T') $*"; }
