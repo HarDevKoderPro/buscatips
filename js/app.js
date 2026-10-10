@@ -11,7 +11,7 @@ let googleClientId = "";
 async function asegurarModuloTips() {
   if (tipsModuleLoaded) return;
   try {
-    await import("./script.js?v=20261009-01");
+    await import("./script.js?v=20260906-03");
     tipsModuleLoaded = true;
   } catch (error) {
     console.error("No se pudo cargar el modulo Tips:", error);
