@@ -102,7 +102,8 @@ Responsabilidades principales:
 - Solicitar el inicio de sesión Google desde Home y conservar el usuario autenticado entre módulos
 - Al confirmar la sesión, volver a resolver la ruta del hash para que una recarga en `#tips` o `#drive` conserve el módulo abierto
 - Navegar con `navegar(ruta)`: si el hash ya coincide con el destino, resuelve la ruta directamente porque el navegador no dispara `hashchange`
-- Los botones `Inicio PIA` y `Volver al inicio` de los módulos cierran la sesión
+- Los botones `Inicio PIA` y `Volver al inicio` de los módulos solo regresan a Home; la sesión se cierra únicamente con el icono junto al título `PIA Tips`
+- Google Identity Services se inicializa con `auto_select` y `prompt()` (FedCM): si el navegador tiene una única cuenta de Google que ya autorizó PIA, inicia sesión sin clic; con otra cuenta, varias o ninguna muestra el login. Al cerrar sesión se llama a `disableAutoSelect()` para no reingresar automáticamente
 
 ### 4.3 `js/script.js` (orquestador Tips)
 
@@ -240,6 +241,7 @@ Validaciones relevantes:
 ### 5.5 `api/sesion.php`
 
 - Centraliza la sesión segura y la obtención del usuario autenticado.
+- La cookie `pia_session` y `session.gc_maxlifetime` duran 7 días. Las sesiones se guardan en el sistema de archivos del contenedor, por lo que cada despliegue las reinicia; el inicio automático de Google lo compensa.
 - Todas las operaciones de Tips y categorías exigen sesión autenticada. Las operaciones `POST`, `PUT` y `DELETE` requieren además rol `admin`.
 
 ## 6) Datos y modelo
@@ -396,3 +398,4 @@ Checklist minimo por cambio:
 - 2026-10-10: Prueba del flujo de trabajo con despliegue automático (título temporal `PIAS Tips`, revertido). Versión de recursos estáticos actual: `20261010-02`.
 - 2026-10-10: Corrección de navegación: al recargar en `#tips` la sesión se resolvía después del enrutado y la app quedaba en Home con el hash `#tips`, de modo que el botón Tips no respondía. Ahora `consultarSesion` vuelve a resolver la ruta y los botones de módulo usan `navegar`. Versión de recursos: `20261010-03`.
 - 2026-10-10: Bloques de código: se agrega un botón de copiar con confirmación visual en la vista del tip y en la vista previa del editor. Versión de recursos: `20261010-04`.
+- 2026-10-10: Inicio de sesión automático con Google (`auto_select` + `prompt()`), sesión PHP de 7 días y botones de regreso a Home que ya no cierran la sesión. Versión de recursos: `20261010-05`.

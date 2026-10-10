@@ -6,8 +6,11 @@ function iniciarSesionSegura(): void
         return;
     }
 
+    $duracionSesion = 7 * 24 * 60 * 60;
+    ini_set('session.gc_maxlifetime', (string) $duracionSesion);
     session_name('pia_session');
     session_set_cookie_params([
+        'lifetime' => $duracionSesion,
         'httponly' => true,
         'secure' => ENTORNO === 'production',
         'samesite' => 'Lax',

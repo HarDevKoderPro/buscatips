@@ -25,7 +25,7 @@ import {
   filtrarPorCategoria,
   renderizarTabla,
   resaltarBloquesCodigo,
-} from "./libreria.js?v=20261010-04";
+} from "./libreria.js?v=20261010-05";
 
 // Detección de mobile
 const esMobile = () => window.matchMedia("(max-width: 768px)").matches;

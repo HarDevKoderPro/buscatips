@@ -11,7 +11,7 @@ let googleClientId = "";
 async function asegurarModuloTips() {
   if (tipsModuleLoaded) return;
   try {
-    await import("./script.js?v=20261010-04");
+    await import("./script.js?v=20261010-05");
     tipsModuleLoaded = true;
   } catch (error) {
     console.error("No se pudo cargar el modulo Tips:", error);
@@ -67,10 +67,18 @@ function esperarGoogleYRenderizar() {
     window.setTimeout(esperarGoogleYRenderizar, 100);
     return;
   }
-  window.google.accounts.id.initialize({ client_id: googleClientId, callback: iniciarSesionGoogle });
+  // auto_select inicia sesión sin clic cuando el navegador tiene una única cuenta
+  // de Google que ya autorizó PIA; en otro caso Google muestra el selector o el botón.
+  window.google.accounts.id.initialize({
+    client_id: googleClientId,
+    callback: iniciarSesionGoogle,
+    auto_select: true,
+    use_fedcm_for_prompt: true,
+  });
   window.google.accounts.id.renderButton(document.getElementById("google-signin-button"), {
     theme: "outline", size: "large", text: "continue_with", width: 300,
   });
+  window.google.accounts.id.prompt();
 }
 
 async function iniciarSesionGoogle(respuestaGoogle) {
@@ -102,6 +110,8 @@ async function cerrarSesion() {
     });
     const json = await response.json();
     if (!json.success) throw new Error(json.message);
+    // Evita que el inicio automático vuelva a entrar justo después de cerrar sesión.
+    window.google?.accounts?.id?.disableAutoSelect();
     window.piaUsuario = null;
     window.location.hash = "home";
     actualizarInterfazSesion();
@@ -121,8 +131,8 @@ function navegar(routeName) {
 function configurarNavegacion() {
   document.getElementById("btn-modulo-tips").addEventListener("click", () => navegar("tips"));
   document.getElementById("btn-modulo-drive").addEventListener("click", () => navegar("drive"));
-  document.getElementById("btn-volver-home-tips").addEventListener("click", cerrarSesion);
-  document.getElementById("btn-volver-home-drive").addEventListener("click", cerrarSesion);
+  document.getElementById("btn-volver-home-tips").addEventListener("click", () => navegar("home"));
+  document.getElementById("btn-volver-home-drive").addEventListener("click", () => navegar("home"));
   document.getElementById("btn-cerrar-sesion").addEventListener("click", cerrarSesion);
   window.addEventListener("hashchange", resolverRuta);
   if (!window.location.hash) window.location.hash = "home";
