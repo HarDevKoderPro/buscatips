@@ -100,6 +100,9 @@ Responsabilidades principales:
 - Cargar modulo Tips de forma diferida al entrar a `#tips`
 - Importar `script.js` con el mismo parámetro de versión de recursos estáticos para invalidar caché tras deploy
 - Solicitar el inicio de sesión Google desde Home y conservar el usuario autenticado entre módulos
+- Al confirmar la sesión, volver a resolver la ruta del hash para que una recarga en `#tips` o `#drive` conserve el módulo abierto
+- Navegar con `navegar(ruta)`: si el hash ya coincide con el destino, resuelve la ruta directamente porque el navegador no dispara `hashchange`
+- Los botones `Inicio PIA` y `Volver al inicio` de los módulos cierran la sesión
 
 ### 4.3 `js/script.js` (orquestador Tips)
 
@@ -390,3 +393,4 @@ Checklist minimo por cambio:
 - 2026-10-10: Respaldos automáticos de la base de datos: se agrega `scripts/backup-db.sh` (dump validado, rotación local y copia cifrada a Google Drive con rclone) y `.gitattributes` para mantener LF en scripts; `scripts/` se excluye de la imagen Docker.
 - 2026-10-10: Respaldos configurados en el VPS: rclone instalado, remotes `gdrive` (scope `drive.file`) y `pia-crypt` (`gdrive:PIA-respaldos`), primer respaldo cifrado verificado y cron diario `30 8 * * *` (zona del VPS `Europe/Berlin`). Se corrige `RCLONE_REMOTE` vacío para desactivar la subida.
 - 2026-10-10: Prueba del flujo de trabajo con despliegue automático (título temporal `PIAS Tips`, revertido). Versión de recursos estáticos actual: `20261010-02`.
+- 2026-10-10: Corrección de navegación: al recargar en `#tips` la sesión se resolvía después del enrutado y la app quedaba en Home con el hash `#tips`, de modo que el botón Tips no respondía. Ahora `consultarSesion` vuelve a resolver la ruta y los botones de módulo usan `navegar`. Versión de recursos: `20261010-03`.

@@ -11,7 +11,7 @@ let googleClientId = "";
 async function asegurarModuloTips() {
   if (tipsModuleLoaded) return;
   try {
-    await import("./script.js?v=20261010-02");
+    await import("./script.js?v=20261010-03");
     tipsModuleLoaded = true;
   } catch (error) {
     console.error("No se pudo cargar el modulo Tips:", error);
@@ -46,7 +46,8 @@ async function consultarSesion() {
     window.piaUsuario = null;
   }
   actualizarInterfazSesion();
-  if (!window.piaUsuario) mostrarLoginGoogle();
+  if (window.piaUsuario) resolverRuta();
+  else mostrarLoginGoogle();
 }
 
 function mostrarLoginGoogle() {
@@ -111,9 +112,15 @@ async function cerrarSesion() {
   }
 }
 
+// Si el hash ya coincide, el navegador no dispara hashchange; se resuelve la ruta directamente.
+function navegar(routeName) {
+  if (window.location.hash === `#${routeName}`) resolverRuta();
+  else window.location.hash = routeName;
+}
+
 function configurarNavegacion() {
-  document.getElementById("btn-modulo-tips").addEventListener("click", () => { window.location.hash = "tips"; });
-  document.getElementById("btn-modulo-drive").addEventListener("click", () => { window.location.hash = "drive"; });
+  document.getElementById("btn-modulo-tips").addEventListener("click", () => navegar("tips"));
+  document.getElementById("btn-modulo-drive").addEventListener("click", () => navegar("drive"));
   document.getElementById("btn-volver-home-tips").addEventListener("click", cerrarSesion);
   document.getElementById("btn-volver-home-drive").addEventListener("click", cerrarSesion);
   document.getElementById("btn-cerrar-sesion").addEventListener("click", cerrarSesion);
