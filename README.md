@@ -577,7 +577,7 @@ GitHub Actions actualizará el código y reconstruirá el contenedor en el VPS a
 
 ### Respaldos de la Base de Datos
 
-`scripts/backup-db.sh` se ejecuta a diario en el VPS desde el crontab del usuario `deploy`:
+`scripts/backup-db.sh` se ejecuta a diario a las 08:30 hora del VPS (zona `Europe/Berlin`, 1:30–2:30 a. m. en Colombia según el horario de verano europeo) desde el crontab del usuario `deploy`:
 
 1. Genera un `mariadb-dump` comprimido desde el contenedor `db` y valida que esté completo.
 2. Lo guarda en `~/backups/pia` y elimina los respaldos locales de más de 14 días.
@@ -586,7 +586,7 @@ GitHub Actions actualizará el código y reconstruirá el contenedor en el VPS a
 Entrada del crontab:
 
 ```
-30 3 * * * /opt/apps/pia/scripts/backup-db.sh >> $HOME/backups/pia/backup.log 2>&1
+30 8 * * * /opt/apps/pia/scripts/backup-db.sh >> $HOME/backups/pia/backup.log 2>&1
 ```
 
 Para restaurar un respaldo:
