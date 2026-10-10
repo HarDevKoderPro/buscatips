@@ -334,7 +334,7 @@ VPS activo:
 5. Opcional: alertas (correo o Telegram) cuando falle un respaldo.
 6. ~~Confirmar el inicio automático de Google~~: verificado por el responsable el 2026-10-10.
 7. ~~Credenciales de Colombia Hosting~~: hecho el 2026-10-10 (ver riesgo 1). La cuenta sigue activa para `girabienes.com` y `tucultur_asociados`, ajenos a PIA.
-8. Opcional: regenerar la llave SSH de despliegue (`VPS_SSH_KEY`), cuya captura difuminada se compartió durante la configuración.
+8. ~~Regenerar la llave SSH de despliegue~~: hecho el 2026-10-10; la llave vigente es `github-actions-deploy-2026-10-10b` y las anteriores se retiraron de `authorized_keys`.
 
 ## 9) Convenciones para futuros cambios
 
@@ -417,3 +417,4 @@ Checklist minimo por cambio:
 - 2026-10-10: Verificado el respaldo programado de las 08:30 y probada una restauración completa en un contenedor MariaDB desechable; se documenta el procedimiento (pendientes 3 y 4 cerrados).
 - 2026-10-10: Inicio automático de Google verificado en producción (pendiente 6 cerrado). Migración a VPS con despliegue continuo completada.
 - 2026-10-10: Retiro de PIA de Colombia Hosting: contraseña de cPanel cambiada, base `tucultur_buscatips_db`, archivos y subdominio `digitalbrain.girabienes.com` eliminados, y acceso MySQL remoto `%.%.%.%` retirado (pendiente 7 cerrado).
+- 2026-10-10: Llave de despliegue regenerada (`github-actions-deploy-2026-10-10b`), actualizado `VPS_SSH_KEY` y retiradas las llaves anteriores del VPS (pendiente 8 cerrado).
