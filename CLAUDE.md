@@ -1,8 +1,8 @@
-# AGENTS.md - Contexto operativo de BuscaTips
+# CLAUDE.md - Contexto operativo de BuscaTips
 
 Este documento es la base de contexto para cualquier agente (humano o IA) que trabaje en este repositorio.
 
-Regla obligatoria: **cada vez que se modifique el proyecto, se debe actualizar este archivo en el mismo cambio** (codigo, docs, infra, estructura, flujo, API o dependencias).
+Regla obligatoria: **cada vez que se modifique el proyecto, se debe actualizar este archivo (`CLAUDE.md`) en el mismo cambio** (codigo, docs, infra, estructura, flujo, API o dependencias).
 
 ## 1) Objetivo del proyecto
 
@@ -26,7 +26,7 @@ Estructura detectada actualmente:
 ```text
 BuscaTips/
 |- .github/workflows/deploy.yml
-|- AGENTS.md
+|- CLAUDE.md
 |- api/config.php
 |- api/auth.php
 |- api/sesion.php
@@ -258,12 +258,13 @@ Migraciones:
 
 - Instalaciones nuevas: ejecutar `migrations/000_create_schema.sql`.
 - Instalaciones existentes previas a categorías: ejecutar una sola vez `migrations/001_add_categorias.sql`.
-- Instalaciones existentes: ejecutar una sola vez `migrations/002_add_usuarios_y_roles.sql` para preparar autenticación futura.
+- Instalaciones existentes previas a usuarios: ejecutar una sola vez `migrations/002_add_usuarios_y_roles.sql` para crear las tablas de identidad.
+- Instalaciones existentes previas a Google Sign-In: ejecutar una sola vez `migrations/003_add_rol_invitado.sql` para agregar el rol `invitado`.
 
-Base de identidad preparada (sin autenticación activa todavía):
+Base de identidad (autenticación Google activa):
 
 - `usuarios`: cuentas locales vinculadas con Google, correo, nombre mostrado y estado. La columna histórica `contrasena_hash` no se usa.
-- `roles`: roles iniciales `admin`, `docente` y `estudiante`.
+- `roles`: `admin` (modificación completa), `invitado` (consulta autenticada), y `docente` y `estudiante` (reservados para uso futuro, sin lógica asociada aún).
 - `usuarios_roles`: relación de múltiples roles por cuenta.
 - `identidades_usuario`: identidades externas de Google sin guardar tokens.
 
@@ -317,7 +318,7 @@ VPS activo:
 - Las categorías son únicas por nombre y cada tip tiene exactamente una categoría al crearse o editarse; los tips antiguos sin categoría deben clasificarse al modificarlos.
 - Si se agregan archivos o carpetas, actualizar snapshot de estructura.
 
-## 10) Protocolo obligatorio de actualizacion de AGENTS.md
+## 10) Protocolo obligatorio de actualizacion de CLAUDE.md
 
 Aplicar siempre que se modifique cualquier parte del proyecto.
 
@@ -368,3 +369,5 @@ Checklist minimo por cambio:
 - 2026-09-06: La autenticación pasa a Google Identity Services desde Home. La API vincula identidades Google y exige sesión para consultar Tips; `hardevkoder@gmail.com` recibe rol admin y cualquier otra cuenta recibe invitado sin permisos de modificación. Se agrega `003_add_rol_invitado.sql`, se deshabilitan visualmente las acciones de invitados y el cierre de sesión se mueve a un icono junto al título de PIA.
 - 2026-09-06: Se corrige el mapeo de `GOOGLE_CLIENT_ID` en `compose.yml` para exponer la variable de entorno del VPS al contenedor PHP.
 - 2026-09-06: Se agregan `privacy.html` y `terms.html` como páginas públicas requeridas por Google OAuth para permitir publicar el acceso de cuentas externas.
+- 2026-10-09: `AGENTS.md` se renombra a `CLAUDE.md` como archivo de contexto principal; se conserva el contenido y se actualizan sus referencias internas.
+- 2026-10-09: Se corrige la sección de datos: la autenticación Google figura como activa, se documenta el rol `invitado` y la migración `003_add_rol_invitado.sql`.
