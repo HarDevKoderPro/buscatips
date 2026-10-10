@@ -312,7 +312,7 @@ VPS activo:
 4. No hay suite automatizada de tests en el repo.
 5. Operación VPS: falta finalizar `backup-db.sh`, programar ejecución diaria y copiar los respaldos fuera del VPS antes de alojar datos de clientes.
 6. Despliegue: el workflow no ejecuta tests ni migraciones SQL; las migraciones nuevas deben aplicarse manualmente en MariaDB antes o después del push según corresponda.
-7. Exposición de datos: el respaldo `pia_buscatips_backup_2026-08-23.sql` (64 tips y 7 categorías, sin usuarios) estuvo versionado desde el commit `75c116a` y se servía públicamente en el sitio. Se retiró del repo y de la imagen el 2026-10-10, pero sigue en el historial de git del repositorio público. Decisión: no purgar el historial porque los tips no contienen credenciales; si en el futuro se detecta alguna, rotarla.
+7. Exposición de datos: el respaldo `pia_buscatips_backup_2026-08-23.sql` (64 tips y 7 categorías, sin usuarios) estuvo versionado desde el commit `75c116a` y se servía públicamente en el sitio. Se retiró del repo y de la imagen el 2026-10-10, pero sigue en el historial de git del repositorio público. Decisión del responsable (2026-10-10): no purgar el historial. Si algún tip contiene credenciales, deben rotarse, ya que purgar no revierte la exposición.
 
 ## 9) Convenciones para futuros cambios
 
