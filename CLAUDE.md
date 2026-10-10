@@ -325,13 +325,13 @@ VPS activo:
 6. Despliegue: el workflow no ejecuta tests ni migraciones SQL; las migraciones nuevas deben aplicarse manualmente en MariaDB antes o después del push según corresponda.
 7. Exposición de datos: el respaldo `pia_buscatips_backup_2026-08-23.sql` (64 tips y 7 categorías, sin usuarios) estuvo versionado desde el commit `75c116a` y se servía públicamente en el sitio. Se retiró del repo y de la imagen el 2026-10-10, pero sigue en el historial de git del repositorio público. Decisión del responsable (2026-10-10): no purgar el historial. Si algún tip contiene credenciales, deben rotarse, ya que purgar no revierte la exposición.
 
-### Pendientes acordados (2026-10-10)
+### Pendientes acordados (2026-10-10) - etapa de migración cerrada
 
 1. ~~Reiniciar el VPS~~: hecho el 2026-10-10; los contenedores (`caddy`, `pia-app-1`, `pia-db-1` y los de `tucultura`) volvieron solos y el sitio responde.
 2. ~~Restringir CORS~~: hecho el 2026-10-10.
 3. ~~Verificar el primer respaldo programado~~: hecho; el cron corrió el 2026-10-10 a las 08:30 hora del VPS, subió la copia cifrada y terminó en `Respaldo finalizado`.
 4. ~~Probar una restauración completa~~: hecho el 2026-10-10 con `pia_2026-10-10_0830.sql.gz` en un contenedor desechable; conteos idénticos a producción (82 tips, 13 categorías, 3 usuarios, 4 roles, 2 identidades). Opcional: probar también descargar y descifrar una copia desde `pia-crypt:`.
-5. Opcional: alertas (correo o Telegram) cuando falle un respaldo.
+5. ~~Alertas de respaldo~~: descartado por decisión del responsable (2026-10-10); se revisa `~/backups/pia/backup.log` manualmente (ver riesgo 5).
 6. ~~Confirmar el inicio automático de Google~~: verificado por el responsable el 2026-10-10.
 7. ~~Credenciales de Colombia Hosting~~: hecho el 2026-10-10 (ver riesgo 1). La cuenta sigue activa para `girabienes.com` y `tucultur_asociados`, ajenos a PIA.
 8. ~~Regenerar la llave SSH de despliegue~~: hecho el 2026-10-10; la llave vigente es `github-actions-deploy-2026-10-10b` y las anteriores se retiraron de `authorized_keys`.
@@ -418,3 +418,4 @@ Checklist minimo por cambio:
 - 2026-10-10: Inicio automático de Google verificado en producción (pendiente 6 cerrado). Migración a VPS con despliegue continuo completada.
 - 2026-10-10: Retiro de PIA de Colombia Hosting: contraseña de cPanel cambiada, base `tucultur_buscatips_db`, archivos y subdominio `digitalbrain.girabienes.com` eliminados, y acceso MySQL remoto `%.%.%.%` retirado (pendiente 7 cerrado).
 - 2026-10-10: Llave de despliegue regenerada (`github-actions-deploy-2026-10-10b`), actualizado `VPS_SSH_KEY` y retiradas las llaves anteriores del VPS (pendiente 8 cerrado).
+- 2026-10-10: Se descartan las alertas de respaldo y se cierra la etapa de migración a VPS; los próximos cambios son nuevas funcionalidades.
