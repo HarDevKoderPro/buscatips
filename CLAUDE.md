@@ -317,7 +317,7 @@ VPS activo:
 
 ## 8) Riesgos y deuda tecnica detectada
 
-1. Seguridad: las credenciales históricas de BD estuvieron expuestas en commits anteriores y deben rotarse en Colombia Hosting. El código actual ya evita incluirlas en `api/config.php` y define el uso de variables de entorno para VPS.
+1. Seguridad: las credenciales históricas de BD (usuario principal de cPanel `tucultur`) siguen en el historial público de git. Mitigado el 2026-10-10: se cambió la contraseña de cPanel, se eliminaron la base `tucultur_buscatips_db`, los archivos y el subdominio de pruebas `digitalbrain.girabienes.com`, y se retiró el host comodín `%.%.%.%` de MySQL remoto. El código actual usa variables de entorno.
 2. CORS: restringido a `https://smarteksoft.com` desde 2026-10-10. Si se agrega otro dominio que consuma la API, debe incluirse explícitamente.
 3. Desfase documental entre `README.md` y archivos reales existentes.
 4. No hay suite automatizada de tests en el repo.
@@ -333,7 +333,7 @@ VPS activo:
 4. ~~Probar una restauración completa~~: hecho el 2026-10-10 con `pia_2026-10-10_0830.sql.gz` en un contenedor desechable; conteos idénticos a producción (82 tips, 13 categorías, 3 usuarios, 4 roles, 2 identidades). Opcional: probar también descargar y descifrar una copia desde `pia-crypt:`.
 5. Opcional: alertas (correo o Telegram) cuando falle un respaldo.
 6. ~~Confirmar el inicio automático de Google~~: verificado por el responsable el 2026-10-10.
-7. Rotar las credenciales históricas de BD en Colombia Hosting o dar de baja ese hosting.
+7. ~~Credenciales de Colombia Hosting~~: hecho el 2026-10-10 (ver riesgo 1). La cuenta sigue activa para `girabienes.com` y `tucultur_asociados`, ajenos a PIA.
 8. Opcional: regenerar la llave SSH de despliegue (`VPS_SSH_KEY`), cuya captura difuminada se compartió durante la configuración.
 
 ## 9) Convenciones para futuros cambios
@@ -416,3 +416,4 @@ Checklist minimo por cambio:
 - 2026-10-10: VPS reiniciado; contenedores levantados automáticamente y sitio verificado (pendiente 1 cerrado).
 - 2026-10-10: Verificado el respaldo programado de las 08:30 y probada una restauración completa en un contenedor MariaDB desechable; se documenta el procedimiento (pendientes 3 y 4 cerrados).
 - 2026-10-10: Inicio automático de Google verificado en producción (pendiente 6 cerrado). Migración a VPS con despliegue continuo completada.
+- 2026-10-10: Retiro de PIA de Colombia Hosting: contraseña de cPanel cambiada, base `tucultur_buscatips_db`, archivos y subdominio `digitalbrain.girabienes.com` eliminados, y acceso MySQL remoto `%.%.%.%` retirado (pendiente 7 cerrado).
