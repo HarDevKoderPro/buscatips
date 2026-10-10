@@ -3,3 +3,12 @@
 .env
 .env.*
 !.env.example
+*.sql
+migrations
+CLAUDE.md
+README.md
+.env.example
+.dockerignore
+.gitignore
+Dockerfile
+compose.yml
