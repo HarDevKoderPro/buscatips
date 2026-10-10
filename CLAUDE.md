@@ -272,14 +272,18 @@ Base de identidad (autenticación Google activa):
 
 Archivo: `.github/workflows/deploy.yml`
 
-- Trigger: push a `main`
-- Accion: `SamKirkland/FTP-Deploy-Action@v4.3.5`
-- Secrets requeridos:
-  - `FTP_SERVER`
-  - `FTP_USERNAME`
-  - `FTP_PASSWORD`
+- Nombre: `Deploy al VPS`
+- Trigger: push a `main` o ejecución manual (`workflow_dispatch`); `concurrency` evita despliegues simultáneos
+- Acción: conexión SSH al VPS con una llave exclusiva de despliegue y verificación final de `https://smarteksoft.com`
+- La llave está restringida en `~/.ssh/authorized_keys` del usuario `deploy` con `restrict,command="..."`; el comando forzado ejecuta `cd /opt/apps/pia && git pull --ff-only origin main && docker compose up -d --build`. El workflow no envía comandos propios.
+- Secrets requeridos en GitHub:
+  - `VPS_HOST`: IP del VPS (no usar el dominio si está proxeado por Cloudflare)
+  - `VPS_USER`: `deploy`
+  - `VPS_SSH_KEY`: llave privada exclusiva de despliegue
+  - `VPS_KNOWN_HOSTS`: salida de `ssh-keyscan` del VPS, para validar la identidad del servidor
+  - `VPS_PORT` (opcional, por defecto `22`)
 
-Destino actual configurado: `digitalbrain.girabienes.com/`
+Estrategia de ramas: `main` es la rama de producción y la que sigue `/opt/apps/pia` en el VPS. El despliegue FTP histórico a Colombia Hosting (`digitalbrain.girabienes.com`) fue retirado.
 
 Recursos estáticos: `index.html`, `js/app.js` y `js/script.js` comparten un parámetro `v=` en sus importaciones de CSS/JS. Incrementarlo en los tres archivos cuando un cambio frontend deba invalidar la caché del navegador.
 
@@ -288,23 +292,23 @@ VPS activo:
 - Dominio personal: `https://smarteksoft.com` con DNS en Cloudflare y HTTPS automático de Let's Encrypt gestionado por Caddy.
 - Servidor: Contabo Cloud VPS con Ubuntu 24.04, Docker, UFW, Fail2ban y acceso SSH por llave para el usuario `deploy`.
 - Proxy: Caddy es el único servicio público en los puertos 80/443 y se conecta a la red Docker externa `proxy`.
-- PIA: la rama `infra/vps-pia` define PHP 8.3/Apache y MariaDB 11.4. El contenedor PHP está conectado a `proxy`; MariaDB permanece en la red interna `pia_internal`.
+- PIA: `compose.yml` define PHP 8.3/Apache y MariaDB 11.4. El contenedor PHP está conectado a `proxy`; MariaDB permanece en la red interna `pia_internal`.
 - Secretos: las credenciales se suministran mediante `/opt/apps/pia/.env`, no versionado y con permisos `600`; `.env.example` documenta las variables requeridas.
 - Google Sign-In: crear un cliente OAuth Web en Google Cloud Console, autorizar `https://smarteksoft.com` como origen JavaScript y definir el Client ID en `GOOGLE_CLIENT_ID` dentro de `/opt/apps/pia/.env`; `compose.yml` lo inyecta en el contenedor PHP.
 - Páginas públicas OAuth: `privacy.html` y `terms.html` cumplen los enlaces de política de privacidad y condiciones requeridos para publicar la aplicación Google OAuth.
 - Datos: se restauraron 7 categorías y 64 tips desde un respaldo SQL de Colombia Hosting. La instalación nueva usa `migrations/000_create_schema.sql`.
 - Ruta temporal por IP: `/pia/`. El acceso principal vigente es el dominio raíz `https://smarteksoft.com`.
 - Recuperación: existen snapshots de Contabo `Base-segura-docker-caddy` y `Pia-restaurado-y-verificado`. Auto Backup de Contabo no fue contratado; quedó pendiente automatizar y copiar fuera del VPS los backups SQL de PIA.
-- Despliegue actual: los cambios para VPS se actualizan manualmente con `git pull` y `docker compose up -d --build` en `/opt/apps/pia`. Queda pendiente sustituir el workflow FTP histórico por despliegue automático seguro mediante GitHub Actions y SSH, después de definir la estrategia final de ramas.
+- Despliegue actual: automático con cada push a `main` mediante el workflow `Deploy al VPS`. Como respaldo manual, en `/opt/apps/pia` ejecutar `git pull --ff-only origin main` y `docker compose up -d --build`. Si el sitio no cambia, comparar `git log --oneline -1` del VPS con GitHub.
 
 ## 8) Riesgos y deuda tecnica detectada
 
-1. Seguridad: las credenciales históricas de BD estuvieron expuestas en commits anteriores y deben rotarse en Colombia Hosting. La rama `infra/vps-pia` ya evita incluirlas en `api/config.php` y define el uso de variables de entorno para VPS.
+1. Seguridad: las credenciales históricas de BD estuvieron expuestas en commits anteriores y deben rotarse en Colombia Hosting. El código actual ya evita incluirlas en `api/config.php` y define el uso de variables de entorno para VPS.
 2. CORS abierto (`*`) en API; revisar si debe restringirse en produccion.
 3. Desfase documental entre `README.md` y archivos reales existentes.
 4. No hay suite automatizada de tests en el repo.
 5. Operación VPS: falta finalizar `backup-db.sh`, programar ejecución diaria y copiar los respaldos fuera del VPS antes de alojar datos de clientes.
-6. Despliegue: falta reemplazar el workflow FTP de Colombia Hosting por CI/CD seguro hacia el VPS mediante SSH, evitando que un push continúe intentando desplegar al hosting histórico.
+6. Despliegue: el workflow no ejecuta tests ni migraciones SQL; las migraciones nuevas deben aplicarse manualmente en MariaDB antes o después del push según corresponda.
 
 ## 9) Convenciones para futuros cambios
 
@@ -372,3 +376,4 @@ Checklist minimo por cambio:
 - 2026-10-09: `AGENTS.md` se renombra a `CLAUDE.md` como archivo de contexto principal; se conserva el contenido y se actualizan sus referencias internas.
 - 2026-10-09: Se corrige la sección de datos: la autenticación Google figura como activa, se documenta el rol `invitado` y la migración `003_add_rol_invitado.sql`.
 - 2026-10-09: Se revierte la prueba de despliegue: el título vuelve a `PIA Tips` y la versión de recursos estáticos a `20260906-03`. Flujo de despliegue manual en VPS verificado.
+- 2026-10-09: Despliegue automático al VPS: `main` pasa a ser la rama de producción; el workflow FTP de Colombia Hosting se reemplaza por `Deploy al VPS`, que usa SSH con una llave restringida por comando forzado y verifica el sitio tras desplegar. Se actualiza `README.md`.

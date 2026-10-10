@@ -107,7 +107,7 @@
 | Tecnología | Uso |
 |------------|-----|
 | **Git / GitHub** | Control de versiones |
-| **GitHub Actions** | Despliegue continuo (CD) vía FTP |
+| **GitHub Actions** | Despliegue continuo (CD) al VPS vía SSH |
 
 ---
 
@@ -160,7 +160,7 @@
 BuscaTips/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml          # 🚀 GitHub Actions - Despliegue automático por FTP
+│       └── deploy.yml          # 🚀 GitHub Actions - Despliegue automático al VPS por SSH
 ├── api/
 │   ├── config.php              # ⚙️ Configuración de BD y funciones helper (PDO, JSON response)
 │   ├── auth.php                # 🔐 Autenticación con Google y sesión
@@ -541,11 +541,17 @@ PIA está operativo en `https://smarteksoft.com` sobre un VPS Contabo con Ubuntu
 - `GOOGLE_CLIENT_ID` debe contener el Client ID público del cliente OAuth Web autorizado para `https://smarteksoft.com`.
 - Para instalaciones nuevas, ejecuta `migrations/000_create_schema.sql` dentro de la base MariaDB antes de usar la aplicación.
 
-La rama de infraestructura activa es `infra/vps-pia`. El workflow FTP de la siguiente sección corresponde al despliegue histórico en Colombia Hosting y no debe usarse para actualizar el VPS.
+`main` es la rama de producción y la que sigue el VPS en `/opt/apps/pia`.
 
 ### Despliegue Automático con GitHub Actions
 
-El proyecto incluye un workflow de GitHub Actions (`.github/workflows/deploy.yml`) que despliega automáticamente al hacer `push` a la rama `main` mediante FTP.
+El workflow `.github/workflows/deploy.yml` (**Deploy al VPS**) se ejecuta con cada `push` a `main` o manualmente desde la pestaña Actions. Se conecta por SSH al VPS con una llave exclusiva de despliegue y luego verifica que `https://smarteksoft.com` responda.
+
+La llave está restringida en el VPS mediante un comando forzado en `~/.ssh/authorized_keys` del usuario `deploy`, por lo que solo puede ejecutar el despliegue:
+
+```
+restrict,command="cd /opt/apps/pia && git pull --ff-only origin main && docker compose up -d --build" ssh-ed25519 AAAA... github-actions-deploy
+```
 
 #### Configurar Secrets en GitHub
 
@@ -553,9 +559,11 @@ Ve a **Settings → Secrets and variables → Actions** y agrega:
 
 | Secret | Descripción |
 |--------|-------------|
-| `FTP_SERVER` | Dirección del servidor FTP (ej: `ftp.tudominio.com`) |
-| `FTP_USERNAME` | Usuario FTP |
-| `FTP_PASSWORD` | Contraseña FTP |
+| `VPS_HOST` | IP del VPS (no el dominio si Cloudflare lo proxea) |
+| `VPS_USER` | Usuario SSH (`deploy`) |
+| `VPS_SSH_KEY` | Llave privada exclusiva de despliegue |
+| `VPS_KNOWN_HOSTS` | Salida de `ssh-keyscan IP_DEL_VPS` |
+| `VPS_PORT` | Opcional; puerto SSH si no es `22` |
 
 #### Flujo de Despliegue
 
@@ -565,7 +573,7 @@ git commit -m "feat: nueva funcionalidad"
 git push origin main
 ```
 
-GitHub Actions se encargará de sincronizar los archivos al servidor automáticamente. ✅
+GitHub Actions actualizará el código y reconstruirá el contenedor en el VPS automáticamente. ✅ El workflow no ejecuta migraciones SQL: aplícalas manualmente en MariaDB cuando corresponda.
 
 ### Actualización de Archivos Estáticos
 
@@ -573,10 +581,15 @@ Los recursos de frontend usan un parámetro de versión en sus rutas para evitar
 
 ### Despliegue Manual
 
-1. Sube todos los archivos al servidor vía FTP/SFTP
-2. Asegúrate de que `api/config.php` tenga las credenciales de producción
-3. Cambia `define('ENTORNO', 'local')` a `define('ENTORNO', 'produccion')`
-4. Verifica la conexión con `api/test_conexion.php`
+Si el workflow falla, entra al VPS por SSH y ejecuta:
+
+```
+cd /opt/apps/pia
+git pull --ff-only origin main
+docker compose up -d --build
+```
+
+Si el sitio no refleja los cambios, compara `git log --oneline -1` del VPS con el último commit de `main` en GitHub.
 
 ---
 
