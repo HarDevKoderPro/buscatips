@@ -190,7 +190,7 @@ Comportamiento clave:
 
 Headers y CORS:
 
-- `Access-Control-Allow-Origin: *`
+- `Access-Control-Allow-Origin: https://smarteksoft.com` (también en `api/categorias.php`; el frontend usa rutas relativas, por lo que no depende de CORS)
 - metodos permitidos: `GET, POST, PUT, DELETE, OPTIONS`
 
 Endpoints:
@@ -317,7 +317,7 @@ VPS activo:
 ## 8) Riesgos y deuda tecnica detectada
 
 1. Seguridad: las credenciales históricas de BD estuvieron expuestas en commits anteriores y deben rotarse en Colombia Hosting. El código actual ya evita incluirlas en `api/config.php` y define el uso de variables de entorno para VPS.
-2. CORS abierto (`*`) en API; revisar si debe restringirse en produccion.
+2. CORS: restringido a `https://smarteksoft.com` desde 2026-10-10. Si se agrega otro dominio que consuma la API, debe incluirse explícitamente.
 3. Desfase documental entre `README.md` y archivos reales existentes.
 4. No hay suite automatizada de tests en el repo.
 5. Operación VPS: los respaldos diarios dependen del crontab y de la autorización de rclone con Google Drive; revisar periódicamente `~/backups/pia/backup.log` y probar una restauración. No hay alertas automáticas si un respaldo falla.
@@ -327,7 +327,7 @@ VPS activo:
 ### Pendientes acordados (2026-10-10)
 
 1. Reiniciar el VPS (`sudo reboot`): Ubuntu indica `System restart required`. Los contenedores tienen `restart: unless-stopped`; tras el reinicio, verificar que `https://smarteksoft.com` responda.
-2. Restringir CORS: reemplazar `Access-Control-Allow-Origin: *` en la API por `https://smarteksoft.com`.
+2. ~~Restringir CORS~~: hecho el 2026-10-10.
 3. Verificar el primer respaldo programado (08:30 hora del VPS del 2026-10-11) con `tail -5 ~/backups/pia/backup.log`; debe terminar en `Respaldo finalizado`.
 4. Probar una restauración completa de un respaldo en una base temporal de MariaDB.
 5. Opcional: alertas (correo o Telegram) cuando falle un respaldo.
@@ -411,3 +411,4 @@ Checklist minimo por cambio:
 - 2026-10-10: Bloques de código: se agrega un botón de copiar con confirmación visual en la vista del tip y en la vista previa del editor. Versión de recursos: `20261010-04`.
 - 2026-10-10: Inicio de sesión automático con Google (`auto_select` + `prompt()`), sesión PHP de 7 días y botones de regreso a Home que ya no cierran la sesión. Versión de recursos: `20261010-05`.
 - 2026-10-10: Se agrega la lista de pendientes acordados en la sección 8.
+- 2026-10-10: CORS de `api/tips.php` y `api/categorias.php` restringido a `https://smarteksoft.com` (pendiente 2 cerrado).
