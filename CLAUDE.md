@@ -152,6 +152,7 @@ Responsabilidades principales:
 - Render tabla resultados: `renderizarTabla`
 - Mostrar contenido renderizado en `#contenido`
 - Renderizar bloques Markdown y aplicar `Highlight.js` sobre cada bloque de código al mostrarlo o previsualizarlo
+- Agregar a cada bloque de código un botón para copiar su contenido al portapapeles (`navigator.clipboard`); el botón se ubica en un contenedor `.bloque-codigo` externo al `<pre>` porque el CSS reinicia los estilos de los hijos del `<pre>`
 
 Comportamiento clave:
 
@@ -394,3 +395,4 @@ Checklist minimo por cambio:
 - 2026-10-10: Respaldos configurados en el VPS: rclone instalado, remotes `gdrive` (scope `drive.file`) y `pia-crypt` (`gdrive:PIA-respaldos`), primer respaldo cifrado verificado y cron diario `30 8 * * *` (zona del VPS `Europe/Berlin`). Se corrige `RCLONE_REMOTE` vacío para desactivar la subida.
 - 2026-10-10: Prueba del flujo de trabajo con despliegue automático (título temporal `PIAS Tips`, revertido). Versión de recursos estáticos actual: `20261010-02`.
 - 2026-10-10: Corrección de navegación: al recargar en `#tips` la sesión se resolvía después del enrutado y la app quedaba en Home con el hash `#tips`, de modo que el botón Tips no respondía. Ahora `consultarSesion` vuelve a resolver la ruta y los botones de módulo usan `navegar`. Versión de recursos: `20261010-03`.
+- 2026-10-10: Bloques de código: se agrega un botón de copiar con confirmación visual en la vista del tip y en la vista previa del editor. Versión de recursos: `20261010-04`.

@@ -381,11 +381,54 @@ function mostrarContenido(tip) {
   });
 }
 
+const ICONO_COPIAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h8"></path></svg>';
+const ICONO_COPIADO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>';
+
 export function resaltarBloquesCodigo(contenedor) {
-  if (!window.hljs) return;
   contenedor.querySelectorAll("pre code").forEach((bloque) => {
-    window.hljs.highlightElement(bloque);
+    if (window.hljs) window.hljs.highlightElement(bloque);
+    agregarBotonCopiar(bloque);
   });
+}
+
+// El botón va en un contenedor externo al <pre> porque el CSS reinicia los estilos de sus hijos.
+function agregarBotonCopiar(bloque) {
+  const pre = bloque.parentElement;
+  if (pre.parentElement?.classList.contains("bloque-codigo")) return;
+
+  const envoltorio = document.createElement("div");
+  envoltorio.className = "bloque-codigo";
+  pre.replaceWith(envoltorio);
+  envoltorio.appendChild(pre);
+
+  const boton = document.createElement("button");
+  boton.type = "button";
+  boton.className = "btn-copiar-codigo";
+  boton.title = "Copiar código";
+  boton.setAttribute("aria-label", "Copiar código");
+  boton.innerHTML = ICONO_COPIAR;
+  boton.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(bloque.textContent);
+      mostrarEstadoCopia(boton, ICONO_COPIADO, "Copiado", "copiado");
+    } catch (error) {
+      console.error("No se pudo copiar el código:", error);
+      mostrarEstadoCopia(boton, ICONO_COPIAR, "No se pudo copiar", "error-copia");
+    }
+  });
+  envoltorio.appendChild(boton);
+}
+
+function mostrarEstadoCopia(boton, icono, texto, clase) {
+  clearTimeout(boton._temporizador);
+  boton.innerHTML = icono;
+  boton.title = texto;
+  boton.classList.add(clase);
+  boton._temporizador = setTimeout(() => {
+    boton.innerHTML = ICONO_COPIAR;
+    boton.title = "Copiar código";
+    boton.classList.remove(clase);
+  }, 1500);
 }
 
 /**

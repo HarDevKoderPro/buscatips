@@ -605,6 +605,72 @@ main#contenido pre code[class*="language-"] {
   tab-size: 4 !important;
 }
 
+/* Botón copiar de bloques de código */
+.bloque-codigo {
+  position: relative;
+  margin: 1.5rem 0;
+}
+
+#contenido .bloque-codigo pre {
+  margin: 0 !important;
+  padding-right: 52px !important;
+}
+
+.btn-copiar-codigo {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #1d3b53;
+  border-radius: 6px;
+  background: #01111d;
+  color: #7fdbca;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.btn-copiar-codigo svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.bloque-codigo:hover .btn-copiar-codigo,
+.btn-copiar-codigo:focus-visible {
+  opacity: 1;
+}
+
+.btn-copiar-codigo:hover {
+  color: #fff;
+  border-color: #7fdbca;
+}
+
+.btn-copiar-codigo.copiado {
+  opacity: 1;
+  color: #c3e88d;
+  border-color: #c3e88d;
+}
+
+.btn-copiar-codigo.error-copia {
+  opacity: 1;
+  color: #ff8b85;
+  border-color: #ff8b85;
+}
+
+@media (hover: none) {
+  .btn-copiar-codigo {
+    opacity: 1;
+  }
+}
+
 #contenido pre .hljs-keyword,
 #contenido pre .hljs-selector-tag,
 #contenido pre .hljs-literal {
